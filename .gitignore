@@ -1,3 +1,6 @@
 *.pdf
 *.xml
+.idea
 .idea/*
+out
+out/*
