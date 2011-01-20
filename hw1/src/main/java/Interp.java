@@ -18,7 +18,7 @@ class Interp {
                 st = new StringTokenizer(ln);
             }
         }
-    };
+    }
 
     /* The store maps locations to fab values.
        To enable a simple uniform treatment of lvalues,
@@ -67,14 +67,30 @@ class Interp {
         Func as_func() throws InterpError {
             throw new Error("Impossible as_func");
         }
-        // ...
+        boolean as_bool() throws InterpError {
+            throw new Error("Impossible as_bool");
+        }
+    }
+
+    static class BoolValue extends Value {
+        boolean b;
+
+        BoolValue (boolean b) {
+            this.b = b;
+        }
+
+        boolean as_bool() {
+            return b;
+        }
     }
 
     static class IntValue extends Value {
         int v;
+
         IntValue (int v) {
             this.v = v;
         }
+
         int as_int() {
             return v;
         }
@@ -82,9 +98,11 @@ class Interp {
 
     static class LocValue extends Value {
         int l;
+
         LocValue (int l) {
             this.l = l;
         }
+
         int as_loc() {
             return l;
         }
@@ -116,6 +134,8 @@ class Interp {
 
         /** Empty environment is just a null Env. */
         static final Env empty = null;
+        static final BoolValue TRUE = new BoolValue(true);
+        static final BoolValue FALSE = new BoolValue(false);
 
         /** Creates new Env by extending an existing Env with a new declaration binding.
          */
@@ -152,7 +172,7 @@ class Interp {
         br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer("");
         Env env = Env.empty;
-        // ...
+        // recordtype decls
         interp(p.body,env);
     }
 
@@ -382,7 +402,7 @@ class Interp {
             }
         }
         try {
-            return ((Integer) l.accept(new LvalueVisitor())).intValue();
+            return (Integer) l.accept(new LvalueVisitor());
         } catch (Ast.Error exn) {
             throw (InterpError) exn;
         }
