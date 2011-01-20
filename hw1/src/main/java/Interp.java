@@ -317,14 +317,98 @@ class Interp {
 
             public Value visit(Ast.BinOpExp e) throws InterpError {
                 Value r = null;
+                int i1, i2;
+                boolean b1, b2;
+
                 switch (e.binOp) {
-                    // highly incomplete! ...
+
                     case Ast.PLUS:
-                        int i1 = interp(e.left,env).as_int();
-                        int i2 = interp(e.right,env).as_int();
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
                         r = new IntValue (i1 + i2);
                         break;
-                    // ...
+
+                    case Ast.MINUS:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new IntValue (i1 - i2);
+                        break;
+
+                    case Ast.TIMES:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new IntValue (i1 * i2);
+                        break;
+
+                    case Ast.DIV:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new IntValue (i1 / i2);
+                        break;
+
+                    case Ast.SLASH:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new IntValue (i1 / i2);
+                        break;
+
+                    case Ast.MOD:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new IntValue (i1 % i2);
+                        break;
+
+                    // Relational operators
+
+                    case Ast.GEQ:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 >= i2);
+                        break;
+
+                    case Ast.LEQ:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 <= i2);
+                        break;
+
+                    case Ast.EQ:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 == i2);
+                        break;
+
+                    case Ast.NEQ:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 != i2);
+                        break;
+
+                    case Ast.GT:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 > i2);
+                        break;
+
+                    case Ast.LT:
+                        i1 = interp(e.left,env).as_int();
+                        i2 = interp(e.right,env).as_int();
+                        r = new BoolValue (i1 < i2);
+                        break;
+
+                    // Logical operators
+
+                    case Ast.AND:
+                        b1 = interp(e.left,env).as_bool();
+                        b2 = interp(e.right,env).as_bool();
+                        r = new BoolValue (b1 && b2);
+                        break;
+
+                    case Ast.OR:
+                        b1 = interp(e.left,env).as_bool();
+                        b2 = interp(e.right,env).as_bool();
+                        r = new BoolValue (b1 || b2);
+                        break;
                 }
                 return r;
             }
