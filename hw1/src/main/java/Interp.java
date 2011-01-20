@@ -414,8 +414,23 @@ class Interp {
             }
 
             public Value visit(Ast.UnOpExp e) throws InterpError {
-                // ...
-                return null; // just temporary
+                Value r = null;
+                int i1;
+                boolean b1;
+
+                switch (e.unOp) {
+                    case Ast.UMINUS:
+                        i1 = interp(e, env).as_int();
+                        r = new IntValue(i1 * -1);
+                        break;
+
+                    case Ast.NOT:
+                        b1 = interp(e, env).as_bool();
+                        r = new BoolValue(!b1);
+                        break;
+                }
+
+                return r;
             }
 
             public Value visit(Ast.LvalExp e) throws InterpError {
