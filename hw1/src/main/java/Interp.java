@@ -234,7 +234,7 @@ class Interp {
 
                 storeSet(l, v);
 
-                return null;
+                return v;
             }
 
             public Object visit(Ast.CallSt s) throws InterpError {
@@ -253,8 +253,12 @@ class Interp {
                         System.out.print(((Ast.StringLitExp) exp).lit);
                     } else {
                         Value v = interp(exp,env);
-                        // not quite complete!
-                        System.out.print(v.as_int());
+
+                        if (v instanceof IntValue) {
+                            System.out.print(v.as_int());
+                        } else if (v instanceof BoolValue) {
+                            System.out.print(v.as_bool());
+                        }
                     }
                 }
                 System.out.println();
@@ -305,14 +309,16 @@ class Interp {
                 int l;
                 Value v1, v2, v3;
 
+                // Interp these two values before changing v1 in the store.
+
+                v2 = interp(s.stop, env);
+                v3 = interp(s.step, env);
+
                 // loopVar is already defined, so find and set it...
                 l = find(s.loopVar, env).loc;
 
                 v1 = interp(s.start, env);
                 storeSet(l, v1);
-
-                v2 = interp(s.stop, env);
-                v3 = interp(s.step, env);
 
                 while (v1.as_int() <= v2.as_int() && (r == null)) {
                     r = interp(s.body, env);
