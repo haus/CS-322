@@ -170,10 +170,11 @@ class Interp {
         br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer("");
         Env env = Env.empty;
-        // recordtype decls or constants (nil, true, false)
-        storeValue(new BoolValue(true));
-        storeValue(new BoolValue(false));
-        // storeValue(new )
+
+        // Constants (nil, true, false)
+        env = new Env("true", storeValue(new BoolValue(true)), env);
+        env = new Env("false", storeValue(new BoolValue(false)), env);
+        env = new Env("nil", storeValue(null), env);
 
         interp(p.body,env);
     }
@@ -257,27 +258,50 @@ class Interp {
             }
 
             public Object visit(Ast.IfSt s) throws InterpError {
-                // ...
-                return null; // just temporary
+                Object r = null;
+
+                if (interp(s.test, env).as_bool()) {
+                    r = interp(s.ifTrue, env);
+                } else {
+                    r = interp(s.ifFalse, env);
+                }
+
+                return r;
             }
 
             public Object visit(Ast.WhileSt s) throws InterpError {
-                // ...
-                return null; // just temporary
+                Object r = null;
+                boolean c = interp(s.test, env).as_bool();
+
+                while (c && r == null) {
+                    r = interp(s.body,env);
+                    c = interp(s.test, env).as_bool();
+                }
+
+                if (r == EXIT)
+                    r = null;
+
+                return r;
             }
 
             public Object visit(Ast.LoopSt s) throws InterpError {
                 Object r = null;
+
                 while (r == null)
                     r = interp(s.body,env);
+
                 if (r == EXIT)
                     r = null;
+
                 return r;
             }
 
             public Object visit(Ast.ForSt s) throws InterpError {
-                // ...
-                return null; // just temporary
+                Object r = null;
+
+
+
+                return null;
             }
 
             public Object visit(Ast.ExitSt s) throws InterpError {
