@@ -229,7 +229,14 @@ class Interp {
         class StVisitor implements Ast.StVisitor {
 
             public Object visit(Ast.AssignSt s) throws InterpError {
-                // ...
+                Object r = null;
+                int l;
+                Value v = interp(s.rhs, env);
+
+                l = find(s.lhs.toString(), env).loc;
+
+                storeSet(l, v);
+
                 return null; // just temporary
             }
 
@@ -298,10 +305,30 @@ class Interp {
 
             public Object visit(Ast.ForSt s) throws InterpError {
                 Object r = null;
+                int l;
+                Value v1, v2, v3;
 
+                // loopVar is already defined, so find and set it...
+                l = find(s.loopVar, env).loc;
 
+                v1 = interp(s.start, env);
+                storeSet(l, v1);
 
-                return null;
+                v2 = interp(s.stop, env);
+                v3 = interp(s.step, env);
+
+                while (v1.as_int() <= v2.as_int() && (r == null)) {
+                    r = interp(s.body, env);
+
+                    v1 = storeGet(l);
+                    v1 = new IntValue(v1.as_int() + v3.as_int());
+                    storeSet(l, v1);
+                }
+
+                if (r == EXIT)
+                    r = null;
+
+                return r;
             }
 
             public Object visit(Ast.ExitSt s) throws InterpError {
