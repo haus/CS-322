@@ -134,8 +134,6 @@ class Interp {
 
         /** Empty environment is just a null Env. */
         static final Env empty = null;
-        static final BoolValue TRUE = new BoolValue(true);
-        static final BoolValue FALSE = new BoolValue(false);
 
         /** Creates new Env by extending an existing Env with a new declaration binding.
          */
@@ -172,7 +170,11 @@ class Interp {
         br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer("");
         Env env = Env.empty;
-        // recordtype decls
+        // recordtype decls or constants (nil, true, false)
+        storeValue(new BoolValue(true));
+        storeValue(new BoolValue(false));
+        // storeValue(new )
+
         interp(p.body,env);
     }
 
