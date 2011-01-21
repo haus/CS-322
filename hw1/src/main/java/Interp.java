@@ -229,15 +229,12 @@ class Interp {
         class StVisitor implements Ast.StVisitor {
 
             public Object visit(Ast.AssignSt s) throws InterpError {
-                Object r = null;
-                int l;
+                int l = interp(s.lhs, env);
                 Value v = interp(s.rhs, env);
-
-                l = find(s.lhs.toString(), env).loc;
 
                 storeSet(l, v);
 
-                return null; // just temporary
+                return null;
             }
 
             public Object visit(Ast.CallSt s) throws InterpError {
