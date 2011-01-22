@@ -1,14 +1,17 @@
 record CounterRep {x : integer};
-record BackupCounterRep extends CounterRep {b : integer};
+record BackupCounterRep extends CounterRep {b : integer, nil: integer};
 record ExtendedBackupCounterRep extends BackupCounterRep {c : boolean};
+record nil {x : integer};
 
 { 
 var cr := CounterRep{x := 1};
-var bcr := BackupCounterRep{x := 1, b:= 2};
-var ebcr := ExtendedBackupCounterRep{x := 34, b := 98, c := false};
+var bcr := BackupCounterRep{x := 1, b:= 2, nil := 5};
+var ebcr := ExtendedBackupCounterRep{x := 34, b := 98, nil := 12, c := false};
+var n := nil { x := 5 };
 
 write("CounterRep: ", cr.x);
 write("BackupCounterRep: ", bcr.x, ", ", bcr.b);
-write("ExtendedBackupCounterRep: ", ebcr.x, ", ", ebcr.b, ", ", ebcr.c)
+write("ExtendedBackupCounterRep: ", ebcr.x, ", ", ebcr.b, ", ", ebcr.c);
+write("Nil Stuff: ", nil.x)
 
 }

@@ -213,8 +213,10 @@ class Interp {
             public Object visit(Ast.FuncDecs d0) throws InterpError {
                 Env newEnv = env;
                 // not quite right!!
-                for (Ast.FuncDec d : d0.decs)
+                for (Ast.FuncDec d : d0.decs) {
                     newEnv = new Env(d.name,storeValue(new FuncValue(new Func(env,d))),newEnv);
+
+                }
                 return newEnv;
             }
         }
@@ -249,8 +251,8 @@ class Interp {
             }
 
             public Object visit(Ast.CallSt s) throws InterpError {
-                // ...
-                return null; // just temporary
+                interpCall(s.func, s.args, env);
+                return null;
             }
 
             public Object visit(Ast.ReadSt s) throws InterpError {
@@ -266,7 +268,7 @@ class Interp {
                     }
                 }
 
-                return null; // just temporary
+                return null;
             }
 
             public Object visit(Ast.WriteSt s) throws InterpError {
@@ -520,8 +522,10 @@ class Interp {
 
             public Value visit(Ast.CallExp e) throws InterpError {
                 Object res = interpCall(e.func,e.args,env);
+
                 if (res == null)
                     throw new InterpError(e.line,"Function call returned no value"); // typechecker may have prevented this
+
                 return (Value) res;
             }
 
