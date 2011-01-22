@@ -582,7 +582,9 @@ class Interp {
             }
 
             public Integer visit(Ast.RecordDerefLvalue l) throws InterpError {
-                // ...
+                int l0 = interp(l.record, env);
+                int base = storeGet(l0).as_loc();
+                int v = l.
                 return null; // just temporary
             }
         }
