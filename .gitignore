@@ -6,3 +6,4 @@ out
 out/*
 *.class
 .DS_Store
+out/production/Hw1/*
