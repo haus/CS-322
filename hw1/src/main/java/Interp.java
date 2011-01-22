@@ -61,12 +61,15 @@ class Interp {
         int as_int() {
             throw new Error("Impossible as_int");
         }
+
         int as_loc() throws InterpError {
             throw new Error("Impossible as_loc");
         }
+
         Func as_func() throws InterpError {
             throw new Error("Impossible as_func");
         }
+
         boolean as_bool() throws InterpError {
             throw new Error("Impossible as_bool");
         }
@@ -110,9 +113,11 @@ class Interp {
 
     static class FuncValue extends Value {
         Func f;
+
         FuncValue (Func f) {
             this.f = f;
         }
+
         Func as_func() {
             return f;
         }
@@ -121,6 +126,7 @@ class Interp {
     static class Func {
         Env env;
         Ast.FuncDec def;
+
         Func(Env env, Ast.FuncDec def) {
             this.env = env; this.def = def;
         }
@@ -182,6 +188,7 @@ class Interp {
     // Return values are as for main.Ast.St, below
     static Object interp(Ast.Block b0,Env env) throws InterpError {
         Object r = null;
+
         for (Ast.BlockItem b : b0.items) {
             if (b instanceof Ast.Declaration)
                 env = interp((Ast.Declaration) b,env);
@@ -191,6 +198,7 @@ class Interp {
                     break;
             }
         }
+
         return r;
     }
 
@@ -200,6 +208,7 @@ class Interp {
                 Value v = interp(d0.initializer,env);
                 return new Env(d0.name,storeValue(v),env);
             }
+
             public Object visit(Ast.FuncDecs d0) throws InterpError {
                 Env newEnv = env;
                 // not quite right!!
@@ -208,6 +217,7 @@ class Interp {
                 return newEnv;
             }
         }
+
         try {
             return (Env) d0.accept(new DeclarationVisitor());
         } catch (Ast.Error exn) {
@@ -360,10 +370,12 @@ class Interp {
     static Object interpCall(Ast.Exp func, Ast.Exp[] args, Env env) throws InterpError {
         Func f = interp(func,env).as_func();
         Env newEnv = f.env;
+
         for (int i = 0; i < args.length; i++) {
             Value v = interp(args[i],env);
             newEnv = new Env(f.def.formals[i].name,storeValue(v),newEnv);
         }
+
         return interp(f.def.body,newEnv);
     }
 
@@ -501,8 +513,26 @@ class Interp {
             }
 
             public Value visit(Ast.ArrayExp e) throws InterpError {
-                // ...
-                return null; // just temporary
+                /**
+                 * Still in progress...
+                 */
+                int arrayHead = allocateStore(1);
+                int count = 0;
+
+                for (Ast.ArrayInit init : e.initializers) {
+                    int i = interp(init.count, env).as_int();
+                    count += i;
+                    int curHead = allocateStore(interp(init.count, env).as_int());
+                    Value v = interp(init.value,env);
+
+                    for (int j = 0; j < i; j++) {
+                        storeSet(curHead + j, v);
+                    }
+                }
+
+                storeSet(arrayHead, new IntValue(count));
+
+                return new LocValue(arrayHead+1);
             }
 
             public Value visit(Ast.RecordExp e) throws InterpError {
