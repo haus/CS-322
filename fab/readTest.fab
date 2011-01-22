@@ -1,0 +1,9 @@
+{ 
+var i := 0;
+var x := @integer {15 of 0};
+
+read(x[0], x[1], x[2]);
+
+for i := 0 to 14 by 1 do
+	write(x[i])
+}

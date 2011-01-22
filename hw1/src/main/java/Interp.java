@@ -1,3 +1,4 @@
+import javax.management.ValueExp;
 import java.io.*;
 import java.util.*;
 
@@ -253,7 +254,18 @@ class Interp {
             }
 
             public Object visit(Ast.ReadSt s) throws InterpError {
-                // ...
+                Value curVal;
+                for (Ast.Lvalue lv : s.targets) {
+                    try {
+                        curVal = new IntValue(Integer.parseInt(readToken()));
+                        storeSet(interp(lv, env), curVal);
+                    } catch (IOException ex) {
+                        throw new InterpError(lv.line, ex.getMessage());
+                    } catch (NumberFormatException ex) {
+                        throw new InterpError(lv.line, "Invalid input for read");
+                    }
+                }
+
                 return null; // just temporary
             }
 
@@ -271,6 +283,7 @@ class Interp {
                         }
                     }
                 }
+
                 System.out.println();
                 return null;
             }
@@ -584,7 +597,6 @@ class Interp {
             public Integer visit(Ast.RecordDerefLvalue l) throws InterpError {
                 int l0 = interp(l.record, env);
                 int base = storeGet(l0).as_loc();
-                //int v = interp(l.name, env)
                 return (base + l.offset);
             }
         }
