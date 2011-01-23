@@ -9,6 +9,6 @@ var ebcr := ExtendedBackupCounterRep{x := 34, b := 98, c := false};
 
 write("CounterRep: ", cr.x);
 write("BackupCounterRep: ", bcr.x, ", ", bcr.b);
-write("ExtendedBackupCounterRep: ", ebcr.x, ", ", ebcr.b, ", ", ebcr.c);
+write("ExtendedBackupCounterRep: ", ebcr.x, ", ", ebcr.b, ", ", ebcr.c)
 
 }
