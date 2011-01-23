@@ -212,11 +212,22 @@ class Interp {
 
             public Object visit(Ast.FuncDecs d0) throws InterpError {
                 Env newEnv = env;
-                // not quite right!!
-                for (Ast.FuncDec d : d0.decs) {
-                    newEnv = new Env(d.name,storeValue(new FuncValue(new Func(env,d))),newEnv);
+                int len = d0.decs.length;
+                int base = allocateStore(len);
+                int i = base;
 
+                for (Ast.FuncDec d : d0.decs) {
+                    //newEnv = new Env(d.name,storeValue(new FuncValue(new Func(env,d))),newEnv);
+                    newEnv = new Env(d.name, i++, newEnv);
                 }
+
+                i = base;
+
+                for (Ast.FuncDec d : d0.decs) {
+                    storeSet(i++, new FuncValue(new Func(newEnv,d)));
+                }
+
+
                 return newEnv;
             }
         }
@@ -247,7 +258,7 @@ class Interp {
 
                 storeSet(l, v);
 
-                return v;
+                return null;
             }
 
             public Object visit(Ast.CallSt s) throws InterpError {
