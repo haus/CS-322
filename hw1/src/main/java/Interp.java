@@ -254,6 +254,8 @@ class Interp {
                 int base = allocateStore(len);
                 int i = base;
 
+
+                // First add the function name...
                 for (Ast.FuncDec d : d0.decs) {
                     //newEnv = new Env(d.name,storeValue(new FuncValue(new Func(env,d))),newEnv);
                     newEnv = new Env(d.name, i++, newEnv);
@@ -261,6 +263,7 @@ class Interp {
 
                 i = base;
 
+                // Then pass the newEnv to the function, so it is self-aware.
                 for (Ast.FuncDec d : d0.decs) {
                     storeSet(i++, new FuncValue(new Func(newEnv,d)));
                 }
