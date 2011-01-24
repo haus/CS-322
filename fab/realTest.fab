@@ -1,0 +1,29 @@
+{
+var a := 1.5;
+var b := 2.3;
+var c := 5;
+var d := 8;
+
+[* Printout Debugging *]
+write("a: ", a, " b: ", b, " c: ", c, " d: ", d);
+
+[* Real Testing *]
+write(a * b);
+write(a / b);
+write(a + b);
+write(a - b);
+
+write(-a);
+
+[* Integer Testing *]
+write(c * d);
+write(c div d);
+write(c / d);
+write(c + d);
+write(c - d);
+
+write(-c)
+
+
+
+}
