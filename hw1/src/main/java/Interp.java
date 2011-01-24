@@ -293,20 +293,27 @@ class Interp {
 
             public Object visit(Ast.ReadSt s) throws InterpError {
                 Value curVal;
+                String curToken;
+
                 for (Ast.Lvalue lv : s.targets) {
                     try {
-                        curVal = new IntValue(Integer.parseInt(readToken()));
-                        storeSet(interp(lv, env), curVal);
+                        curToken = readToken();
                     } catch (IOException ex) {
                         throw new InterpError(lv.line, ex.getMessage());
+                    }
+
+                    try {
+                        curVal = new IntValue(Integer.parseInt(curToken));
+                        storeSet(interp(lv, env), curVal);
                     } catch (NumberFormatException ex) {
                         try {
-                            curVal = new RealValue(new BigDecimal(readToken()));
+                            curVal = new RealValue(new BigDecimal(curToken));
                             storeSet(interp(lv, env), curVal);
-                        } catch (IOException ex2) {
-                            throw new InterpError(lv.line, ex.getMessage());
+                        } catch (NumberFormatException ex2) {
+                            throw new InterpError(lv.line, ex2.getMessage());
                         }
                     }
+
                 }
 
                 return null;

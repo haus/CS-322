@@ -22,8 +22,14 @@ write(c / d);
 write(c + d);
 write(c - d);
 
-write(-c)
+write(-c);
 
+[* Mixed Bag Testing *]
+write(a * c);
+write(a / c);
+write(a + c);
+write(a - c);
 
+write(a * c - b + a * a - c + d / a)
 
 }
