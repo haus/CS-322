@@ -300,7 +300,12 @@ class Interp {
                     } catch (IOException ex) {
                         throw new InterpError(lv.line, ex.getMessage());
                     } catch (NumberFormatException ex) {
-                        throw new InterpError(lv.line, "Invalid input for read");
+                        try {
+                            curVal = new RealValue(new BigDecimal(readToken()));
+                            storeSet(interp(lv, env), curVal);
+                        } catch (IOException ex2) {
+                            throw new InterpError(lv.line, ex.getMessage());
+                        }
                     }
                 }
 
@@ -318,6 +323,8 @@ class Interp {
                             System.out.print(v.as_int());
                         } else if (v instanceof BoolValue) {
                             System.out.print(v.as_bool());
+                        } else if (v instanceof RealValue) {
+                            System.out.print(v.as_real());
                         }
                     }
                 }
@@ -439,31 +446,52 @@ class Interp {
                 int i1, i2;
                 boolean b1, b2;
                 BigDecimal bd1, bd2;
+                Value v1, v2;
 
                 switch (e.binOp) {
 
                     case Ast.PLUS:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new IntValue (i1 + i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new RealValue(v1.as_real().add(v2.as_real()));
+                        } else {
+                            r = new IntValue (v1.as_int() + v2.as_int());
+                        }
                         break;
 
                     case Ast.MINUS:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new IntValue (i1 - i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new RealValue(v1.as_real().subtract(v2.as_real()));
+                        } else {
+                            r = new IntValue (v1.as_int() - v2.as_int());
+                        }
                         break;
 
                     case Ast.TIMES:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new IntValue (i1 * i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new RealValue(v1.as_real().multiply(v2.as_real()));
+                        } else {
+                            r = new IntValue (v1.as_int() * v2.as_int());
+                        }
                         break;
 
                     case Ast.DIV:
                         i1 = interp(e.left,env).as_int();
                         i2 = interp(e.right,env).as_int();
-                        r = new IntValue (i1 / i2);
+
+                        try {
+                            r = new IntValue (i1 / i2);
+                        } catch (ArithmeticException ex) {
+                            throw new InterpError(e.left.line, "Division by zero.");
+                        }
                         break;
 
                     case Ast.SLASH:
@@ -472,8 +500,8 @@ class Interp {
 
                         try {
                             r = new RealValue (bd1.divide(bd2));
-                        } catch (java.lang.ArithmeticException ex) {
-                            throw new InterpError(e.left.line, ex.getMessage());
+                        } catch (ArithmeticException ex) {
+                            throw new InterpError(e.left.line, "Division by zero.");
                         }
 
                         break;
@@ -487,39 +515,69 @@ class Interp {
                     // Relational operators
 
                     case Ast.GEQ:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 >= i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) >= 0);
+                        } else {
+                            r = new BoolValue (v1.as_int() >= v2.as_int());
+                        }
                         break;
 
                     case Ast.LEQ:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 <= i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) <= 0);
+                        } else {
+                            r = new BoolValue (v1.as_int() <= v2.as_int());
+                        }
                         break;
 
                     case Ast.EQ:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 == i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(v1.as_real().equals(v2.as_real()));
+                        } else {
+                            r = new BoolValue (v1.as_int() == v2.as_int());
+                        }
                         break;
 
                     case Ast.NEQ:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 != i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(!v1.as_real().equals(v2.as_real()));
+                        } else {
+                            r = new BoolValue (v1.as_int() != v2.as_int());
+                        }
                         break;
 
                     case Ast.GT:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 > i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) > 0);
+                        } else {
+                            r = new BoolValue (v1.as_int() > v2.as_int());
+                        }
                         break;
 
                     case Ast.LT:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new BoolValue (i1 < i2);
+                        v1 = interp(e.left,env);
+                        v2 = interp(e.right,env);
+
+                        if (v1 instanceof RealValue || v2 instanceof RealValue) {
+                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) < 0);
+                        } else {
+                            r = new BoolValue (v1.as_int() < v2.as_int());
+                        }
                         break;
 
                     // Logical operators
@@ -543,11 +601,17 @@ class Interp {
                 Value r = null;
                 int i1;
                 boolean b1;
+                Value v1;
 
                 switch (e.unOp) {
                     case Ast.UMINUS:
-                        i1 = interp(e, env).as_int();
-                        r = new IntValue(i1 * -1);
+                        v1 = interp(e, env);
+
+                        if (v1 instanceof RealValue) {
+                            r = new RealValue(v1.as_real().multiply(BigDecimal.valueOf(-1)));
+                        } else {
+                            r = new IntValue(v1.as_int() * -1);
+                        }
                         break;
 
                     case Ast.NOT:
