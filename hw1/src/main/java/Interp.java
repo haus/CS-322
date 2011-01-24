@@ -112,6 +112,7 @@ class Interp {
             return v;
         }
 
+        // To make real coercion easier.
         double as_real() {
             return (double) v;
         }
