@@ -1,3 +1,12 @@
+/**
+ * @author Matthaus Litteken
+ * @author Jonah Brasseur
+ * @version 01.23.2011
+ * @copyright 2011
+ *
+ * HW 1 for CS322. This solution attempts real numbers also.
+ */
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -108,6 +117,9 @@ class Interp {
         }
     }
 
+    /**
+     * RealValue uses BigDecimal to do most of the heavy lifting.
+     */
     static class RealValue extends Value {
         BigDecimal bd;
 
@@ -205,6 +217,8 @@ class Interp {
         // Constants (nil, true, false)
         env = new Env("true", storeValue(new BoolValue(true)), env);
         env = new Env("false", storeValue(new BoolValue(false)), env);
+
+        // Nil has a null value, so simple null equality checks can be used.
         env = new Env("nil", storeValue(null), env);
 
         interp(p.body,env);
@@ -301,6 +315,8 @@ class Interp {
                         throw new InterpError(lv.line, ex.getMessage());
                     }
 
+                    // First try int, then try BigDecimal.
+
                     try {
                         curVal = new IntValue(Integer.parseInt(curToken));
                         storeSet(interp(lv, env), curVal);
@@ -340,7 +356,7 @@ class Interp {
             }
 
             public Object visit(Ast.IfSt s) throws InterpError {
-                Object r = null;
+                Object r;
 
                 if (interp(s.test, env).as_bool()) {
                     r = interp(s.ifTrue, env);
@@ -550,9 +566,9 @@ class Interp {
                             r = new BoolValue(v1.as_real().equals(v2.as_real()));
                         } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() == v2.as_int());
-                        } else if (v1 == null && v2 == null) {
+                        } else if (v1 == null && v2 == null) { // This checks for nil...
                             r = new BoolValue(true);
-                        } else {
+                        } else { // This also checks for nil...
                             r = new BoolValue(false);
                         }
                         break;
@@ -565,9 +581,9 @@ class Interp {
                             r = new BoolValue(!v1.as_real().equals(v2.as_real()));
                         } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() != v2.as_int());
-                        } else if (v1 == null && v2 == null) {
+                        } else if (v1 == null && v2 == null) { // This checks for nil...
                             r = new BoolValue(false);
-                        } else {
+                        } else { // This is also a nil check...
                             r = new BoolValue(true);
                         }
                         break;
@@ -599,6 +615,7 @@ class Interp {
                     case Ast.AND:
                         b1 = interp(e.left,env).as_bool();
 
+                        // Short circuit and...if first is false, whole is false
                         if (!b1) {
                             r = new BoolValue(false);
                             break;
@@ -611,6 +628,7 @@ class Interp {
                     case Ast.OR:
                         b1 = interp(e.left,env).as_bool();
 
+                        // Short circuit and...if first is true, whole is true
                         if (b1) {
                             r = new BoolValue(true);
                             break;
@@ -625,7 +643,6 @@ class Interp {
 
             public Value visit(Ast.UnOpExp e) throws InterpError {
                 Value r = null;
-                int i1;
                 boolean b1;
                 Value v1;
 
