@@ -1,4 +1,3 @@
-import javax.management.ValueExp;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -506,7 +505,7 @@ class Interp {
                         bd2 = interp(e.right,env).as_real();
 
                         try {
-                            r = new RealValue (bd1.divide(bd2, 300, BigDecimal.ROUND_DOWN));
+                            r = new RealValue (bd1.divide(bd2, 300, BigDecimal.ROUND_DOWN).stripTrailingZeros());
                         } catch (ArithmeticException ex) {
                             throw new InterpError(e.left.line, ex.getMessage() + "Division by zero.");
                         }
