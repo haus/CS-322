@@ -1,5 +1,6 @@
 import javax.management.ValueExp;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -74,6 +75,10 @@ class Interp {
         boolean as_bool() throws InterpError {
             throw new Error("Impossible as_bool");
         }
+
+        BigDecimal as_real() throws InterpError {
+            throw new Error("Impossible as_real");
+        }
     }
 
     static class BoolValue extends Value {
@@ -97,6 +102,26 @@ class Interp {
 
         int as_int() {
             return v;
+        }
+
+        BigDecimal as_real() {
+            return BigDecimal.valueOf(v);
+        }
+    }
+
+    static class RealValue extends Value {
+        BigDecimal bd;
+
+        RealValue (String bd) {
+            this.bd = new BigDecimal(bd);
+        }
+
+        RealValue (BigDecimal bd) {
+            this.bd = bd;
+        }
+
+        BigDecimal as_real() {
+            return bd;
         }
     }
 
@@ -413,6 +438,7 @@ class Interp {
                 Value r = null;
                 int i1, i2;
                 boolean b1, b2;
+                BigDecimal bd1, bd2;
 
                 switch (e.binOp) {
 
@@ -441,9 +467,15 @@ class Interp {
                         break;
 
                     case Ast.SLASH:
-                        i1 = interp(e.left,env).as_int();
-                        i2 = interp(e.right,env).as_int();
-                        r = new IntValue (i1 / i2);
+                        bd1 = interp(e.left,env).as_real();
+                        bd2 = interp(e.right,env).as_real();
+
+                        try {
+                            r = new RealValue (bd1.divide(bd2));
+                        } catch (java.lang.ArithmeticException ex) {
+                            throw new InterpError(e.left.line, ex.getMessage());
+                        }
+
                         break;
 
                     case Ast.MOD:
