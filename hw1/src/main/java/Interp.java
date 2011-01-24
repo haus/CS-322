@@ -542,8 +542,12 @@ class Interp {
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
                             r = new BoolValue(v1.as_real().equals(v2.as_real()));
-                        } else {
+                        } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() == v2.as_int());
+                        } else if (v1 == null && v2 == null) {
+                            r = new BoolValue(true);
+                        } else {
+                            r = new BoolValue(false);
                         }
                         break;
 
@@ -553,8 +557,12 @@ class Interp {
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
                             r = new BoolValue(!v1.as_real().equals(v2.as_real()));
-                        } else {
+                        } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() != v2.as_int());
+                        } else if (v1 == null && v2 == null) {
+                            r = new BoolValue(false);
+                        } else {
+                            r = new BoolValue(true);
                         }
                         break;
 
@@ -584,12 +592,24 @@ class Interp {
 
                     case Ast.AND:
                         b1 = interp(e.left,env).as_bool();
+
+                        if (!b1) {
+                            r = new BoolValue(false);
+                            break;
+                        }
+
                         b2 = interp(e.right,env).as_bool();
                         r = new BoolValue (b1 && b2);
                         break;
 
                     case Ast.OR:
                         b1 = interp(e.left,env).as_bool();
+
+                        if (b1) {
+                            r = new BoolValue(true);
+                            break;
+                        }
+
                         b2 = interp(e.right,env).as_bool();
                         r = new BoolValue (b1 || b2);
                         break;
