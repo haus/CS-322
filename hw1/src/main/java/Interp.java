@@ -490,7 +490,7 @@ class Interp {
                         try {
                             r = new IntValue (i1 / i2);
                         } catch (ArithmeticException ex) {
-                            throw new InterpError(e.left.line, "Division by zero.");
+                            throw new InterpError(e.left.line, ex.getMessage() + "Division by zero.");
                         }
                         break;
 
@@ -499,9 +499,9 @@ class Interp {
                         bd2 = interp(e.right,env).as_real();
 
                         try {
-                            r = new RealValue (bd1.divide(bd2));
+                            r = new RealValue (bd1.divide(bd2, 300, BigDecimal.ROUND_DOWN));
                         } catch (ArithmeticException ex) {
-                            throw new InterpError(e.left.line, "Division by zero.");
+                            throw new InterpError(e.left.line, ex.getMessage() + "Division by zero.");
                         }
 
                         break;
@@ -605,17 +605,17 @@ class Interp {
 
                 switch (e.unOp) {
                     case Ast.UMINUS:
-                        v1 = interp(e, env);
+                        v1 = interp(e.operand, env);
 
                         if (v1 instanceof RealValue) {
-                            r = new RealValue(v1.as_real().multiply(BigDecimal.valueOf(-1)));
+                            r = new RealValue(v1.as_real().negate());
                         } else {
                             r = new IntValue(v1.as_int() * -1);
                         }
                         break;
 
                     case Ast.NOT:
-                        b1 = interp(e, env).as_bool();
+                        b1 = interp(e.operand, env).as_bool();
                         r = new BoolValue(!b1);
                         break;
                 }
@@ -673,7 +673,7 @@ class Interp {
             }
 
             public Value visit(Ast.RealLitExp e) throws InterpError {
-                throw new Error ("Impossible RealLitExp");
+                return new RealValue(e.lit.substring(0, (e.lit.length() > 255 ? 255 : e.lit.length())));
             }
 
             public Value visit(Ast.StringLitExp e) throws InterpError {
