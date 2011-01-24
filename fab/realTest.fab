@@ -30,6 +30,19 @@ write(a / c);
 write(a + c);
 write(a - c);
 
-write(a * c - b + a * a - c + d / a)
+write(a * c - b + a * a - c + d / a);
+
+[* Relational Operator Testing *]
+write(a < b);
+write(a < c);
+write(a < d);
+
+write(b >= c);
+write(b >= d);
+write(a = b);
+write(a = a);
+write(a = c);
+write(a = d);
+write(d = d)
 
 }

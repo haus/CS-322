@@ -84,7 +84,7 @@ class Interp {
             throw new Error("Impossible as_bool");
         }
 
-        BigDecimal as_real() throws InterpError {
+        double as_real() throws InterpError {
             throw new Error("Impossible as_real");
         }
     }
@@ -112,27 +112,23 @@ class Interp {
             return v;
         }
 
-        BigDecimal as_real() {
-            return BigDecimal.valueOf(v);
+        double as_real() {
+            return (double) v;
         }
     }
 
     /**
-     * RealValue uses BigDecimal to do most of the heavy lifting.
+     * RealValue uses doubles to handle real numbers.
      */
     static class RealValue extends Value {
-        BigDecimal bd;
+        double r;
 
-        RealValue (String bd) {
-            this.bd = new BigDecimal(bd);
+        RealValue (double r) {
+            this.r = r;
         }
 
-        RealValue (BigDecimal bd) {
-            this.bd = bd;
-        }
-
-        BigDecimal as_real() {
-            return bd;
+        double as_real() {
+            return r;
         }
     }
 
@@ -318,14 +314,14 @@ class Interp {
                         throw new InterpError(lv.line, ex.getMessage());
                     }
 
-                    // First try int, then try BigDecimal.
+                    // First try int, then try double.
 
                     try {
                         curVal = new IntValue(Integer.parseInt(curToken));
                         storeSet(interp(lv, env), curVal);
                     } catch (NumberFormatException ex) {
                         try {
-                            curVal = new RealValue(new BigDecimal(curToken));
+                            curVal = new RealValue(Double.parseDouble(curToken));
                             storeSet(interp(lv, env), curVal);
                         } catch (NumberFormatException ex2) {
                             throw new InterpError(lv.line, ex2.getMessage());
@@ -480,7 +476,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new RealValue(v1.as_real().add(v2.as_real()));
+                            r = new RealValue(v1.as_real() + v2.as_real());
                         } else {
                             r = new IntValue (v1.as_int() + v2.as_int());
                         }
@@ -491,7 +487,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new RealValue(v1.as_real().subtract(v2.as_real()));
+                            r = new RealValue(v1.as_real() - v2.as_real());
                         } else {
                             r = new IntValue (v1.as_int() - v2.as_int());
                         }
@@ -502,7 +498,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new RealValue(v1.as_real().multiply(v2.as_real()));
+                            r = new RealValue(v1.as_real() * v2.as_real());
                         } else {
                             r = new IntValue (v1.as_int() * v2.as_int());
                         }
@@ -520,11 +516,11 @@ class Interp {
                         break;
 
                     case Ast.SLASH:
-                        bd1 = interp(e.left,env).as_real();
-                        bd2 = interp(e.right,env).as_real();
+                        double d1 = interp(e.left,env).as_real();
+                        double d2 = interp(e.right,env).as_real();
 
                         try {
-                            r = new RealValue (bd1.divide(bd2, 300, BigDecimal.ROUND_DOWN).stripTrailingZeros());
+                            r = new RealValue (d1 / d2);
                         } catch (ArithmeticException ex) {
                             throw new InterpError(e.left.line, ex.getMessage() + "Division by zero.");
                         }
@@ -544,7 +540,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) >= 0);
+                            r = new BoolValue(v1.as_real() >= v2.as_real());
                         } else {
                             r = new BoolValue (v1.as_int() >= v2.as_int());
                         }
@@ -555,7 +551,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) <= 0);
+                            r = new BoolValue(v1.as_real() <= v2.as_real());
                         } else {
                             r = new BoolValue (v1.as_int() <= v2.as_int());
                         }
@@ -566,7 +562,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(v1.as_real().equals(v2.as_real()));
+                            r = new BoolValue(v1.as_real() == v2.as_real());
                         } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() == v2.as_int());
                         } else if (v1 == null && v2 == null) { // This checks for nil...
@@ -581,7 +577,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(!v1.as_real().equals(v2.as_real()));
+                            r = new BoolValue(v1.as_real() != v2.as_real());
                         } else if (v1 instanceof IntValue && v2 instanceof IntValue) {
                             r = new BoolValue (v1.as_int() != v2.as_int());
                         } else if (v1 == null && v2 == null) { // This checks for nil...
@@ -596,7 +592,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) > 0);
+                            r = new BoolValue(v1.as_real() > v2.as_real());
                         } else {
                             r = new BoolValue (v1.as_int() > v2.as_int());
                         }
@@ -607,7 +603,7 @@ class Interp {
                         v2 = interp(e.right,env);
 
                         if (v1 instanceof RealValue || v2 instanceof RealValue) {
-                            r = new BoolValue(v1.as_real().compareTo(v2.as_real()) < 0);
+                            r = new BoolValue(v1.as_real() < v2.as_real());
                         } else {
                             r = new BoolValue (v1.as_int() < v2.as_int());
                         }
@@ -654,7 +650,7 @@ class Interp {
                         v1 = interp(e.operand, env);
 
                         if (v1 instanceof RealValue) {
-                            r = new RealValue(v1.as_real().negate());
+                            r = new RealValue(v1.as_real() * -1);
                         } else {
                             r = new IntValue(v1.as_int() * -1);
                         }
@@ -719,7 +715,14 @@ class Interp {
             }
 
             public Value visit(Ast.RealLitExp e) throws InterpError {
-                return new RealValue(e.lit.substring(0, (e.lit.length() > 255 ? 255 : e.lit.length())));
+                Value v;
+                try {
+                    v = new RealValue(Double.parseDouble(e.lit));
+                } catch (ArithmeticException ex) {
+                    throw new InterpError(e.line, "Bad real format.");
+                }
+
+                return v;
             }
 
             public Value visit(Ast.StringLitExp e) throws InterpError {
