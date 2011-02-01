@@ -1,31 +1,3 @@
-.globl partition
-	.type	partition, @function
-partition:
-	movq	(%rsi), %rax
-	movsd	(%rdi), %xmm1
-	cmpq	%rsi, %rdi
-	movq	%rax, (%rdi)
-	movsd	%xmm1, (%rsi)
-	movq	%rdi, %rax
-	jae	.L3
-.L9:
-	movsd	(%rdi), %xmm0
-	ucomisd	%xmm0, %xmm1
-	jb	.L4
-	movq	(%rax), %rdx
-	movq	%rdx, (%rdi)
-	movsd	%xmm0, (%rax)
-	addq	$8, %rax
-.L4:
-	addq	$8, %rdi
-	cmpq	%rdi, %rsi
-	ja	.L9
-	movsd	(%rsi), %xmm1
-.L3:
-	movq	(%rax), %rdx
-	movsd	%xmm1, (%rax)
-	movq	%rdx, (%rsi)
-	ret
 .globl quicksort
 	.type	quicksort, @function
 quicksort:
