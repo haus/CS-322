@@ -44,8 +44,6 @@ quicksort:
 	movsd	%xmm1, (%rbp)
 	movq	%rdi, %rax
 	jbe	.L15
-	.p2align 4,,10
-	.p2align 3
 .L23:
 	movsd	(%rax), %xmm0
 	ucomisd	%xmm0, %xmm1
@@ -81,4 +79,3 @@ qs:
 	cltq
 	leaq	(%rsi,%rax,8), %rsi
 	jmp	quicksort
-	
