@@ -40,5 +40,5 @@ void quicksort(double* left, double* right) {
 }
 
 void qs(int n, double* array) {
-	quicksort(array, array+n);
+	quicksort(array, array+n-1);
 }
