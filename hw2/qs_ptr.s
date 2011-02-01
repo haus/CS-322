@@ -32,7 +32,6 @@ quicksort:
 	pushq	%rbp
 	movq	%rsi, %rbp
 	pushq	%rbx
-	subq	$8, %rsp
 	cmpq	%rdi, %rsi
 	jbe	.L20
 .L22:
@@ -67,7 +66,6 @@ quicksort:
 	cmpq	%rdi, %rbp
 	ja	.L22
 .L20:
-	addq	$8, %rsp
 	popq	%rbx
 	popq	%rbp
 	ret
