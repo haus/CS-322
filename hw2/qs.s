@@ -54,11 +54,14 @@ void qs(int n, double* array) {
 }
 
 */
-# Assembly notes
-# gcc Generated a partition procedure, but also inlined the procedure into our quicksort (thanks gcc!), so we deleted the procedure.
-# .cfi_* lines were removed, they are for stack backtracing and exception handling (dwarf call frame information).
-# .p2align lines were removed, they are an optimization that pads lines to aid in fetching.
-# LFB* and LFE* labels were removed as they weren't used or called by the assembly.
+/*
+* Assembly notes
+* gcc Generated a partition procedure, but also inlined the procedure into our quicksort (thanks gcc!), so we deleted the procedure.
+* .cfi_* lines were removed, they are for stack backtracing and exception handling (dwarf call frame information).
+* .p2align lines were removed, they are an optimization that pads lines to aid in fetching.
+* .size, .ident, .section, .file, .text lines were removed to make it more concise and readable.
+* LFB* and LFE* labels were removed as they weren't used or called by the assembly.
+*/
 
 .globl quicksort
 	.type	quicksort, @function	# Function declaration
@@ -82,7 +85,7 @@ quicksort:
 									# When true, this conditional ends the for loop.
 									# Begin main for loop
 .L23:
-	movsd	(%rax), %xmm0			# Move current i value into %xmm0 (xmm0 = *i)
+	movsd	(%rax), %xmm0			# Move/copy current i value into %xmm0 (xmm0 = *i)
 	ucomisd	%xmm0, %xmm1			# Compare pivotValue and i value
 	jb	.L16						# Jump to L16 if %xmm1 < %xmm0 (if i > pivotValue)
 									# For loop IF body
