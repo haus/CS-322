@@ -1,44 +1,44 @@
+double* partition(double* left, double* right);
+void quicksort(double* left, double* right);
 void qs(int n, double* array);
-void quicksort(double* array, int left, int right);
-int partition(double* array, int left, int right);
 
-void qs(int n, double* array) {
-	quicksort(array, 0, n);
-}
-
-void quicksort(double* array, int left, int right) {
-	if (right > left) {
-		int pivotNewIndex = partition(array, left, right);
-		quicksort(array, left, pivotNewIndex - 1);
-		quicksort(array, pivotNewIndex + 1, right);
-	}
-}
-
-int partition(double* array, int left, int right) {
-	double pivotValue, tempVal;
-	pivotValue = array[left];
-	int i;
+double* partition(double* left, double* right) {
+	double pivotValue, tempVal, *storeIndex;
+	pivotValue = *left;
 	
-	// Swap array[pivotIndex] and array[right]
-	tempVal = array[left];
-	array[left] = array[right]; // Move pivot to end
-	array[right] = tempVal;
+	// Swap left and right
+	tempVal = *left;
+	*left = *right; // Move pivot to end
+	*right = tempVal;
 	
-	int storeIndex = left;
+	storeIndex = left;
 	
-	for (i = left; i < right; i++) { // left <= i < right 
-		if (array[i] <= pivotValue) {
+	for (double* i = left; i < right; i ++) { // left <= i < right 
+		if (*i <= pivotValue) {
 			// Swap array[i] and array[storeIndex]
-			tempVal = array[i];
-			array[i] = array[storeIndex];
-			array[storeIndex++] = tempVal;
+			tempVal = *i;
+			*i = *storeIndex;
+			*storeIndex = tempVal;
+			storeIndex++;
 		}
 	} // Move pivot to its final place
 		
 	// Swap array[storeIndex] and array[right]
-	tempVal = array[storeIndex];
-	array[storeIndex] = array[right];
-	array[right] = tempVal;
+	tempVal = *storeIndex;
+	*storeIndex = *right;
+	*right = tempVal;
    	
 	return storeIndex;
+}
+
+void quicksort(double* left, double* right) {
+	if (right > left) {
+		double* pivotNewIndex = partition(left, right);
+		quicksort(left, pivotNewIndex - 1);
+		quicksort(pivotNewIndex + 1, right);
+	}
+}
+
+void qs(int n, double* array) {
+	quicksort(array, array+n-1);
 }
