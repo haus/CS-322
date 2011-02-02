@@ -8,7 +8,9 @@ double* partition(double* left, double* right) {
 	
 	// Swap left and right
 	tempVal = *left;
-	*left = *right; // Move pivot to end
+	
+	// Move pivot to end
+	*left = *right; 
 	*right = tempVal;
 	
 	storeIndex = left;
@@ -21,8 +23,9 @@ double* partition(double* left, double* right) {
 			*storeIndex = tempVal;
 			storeIndex++;
 		}
-	} // Move pivot to its final place
-		
+	} 
+	
+	// Move pivot to its final place	
 	// Swap array[storeIndex] and array[right]
 	tempVal = *storeIndex;
 	*storeIndex = *right;
@@ -39,6 +42,7 @@ void quicksort(double* left, double* right) {
 	}
 }
 
+// Wrapper to call quicksort
 void qs(int n, double* array) {
 	quicksort(array, array+n-1);
 }
