@@ -1,9 +1,8 @@
 # CS322 HW#2 Jonah Brasseur & Matthaus Litteken
 # gcc Generated a partition procedure, but also inlined the procedure into our quicksort (thanks gcc!), so we deleted the procedure.
 
-.globl quicksort
-	.type	quicksort, @function	# Function declaration
-quicksort:
+.globl _quicksort
+_quicksort:
 	pushq	%rbp 			# Save array location on 1st iteration (from qs jump), save right address on subsequent recursion
 	movq	%rsi, %rbp 		# Storing right pointer into %rbp on 1st iteration, stores left address into %rpb on subsequent recursion
 	pushq	%rbx 			# Save n on 1st iteration (from qs jump), save left address on subsequent recursion
@@ -42,7 +41,7 @@ quicksort:
 	movsd	%xmm1, (%rbx)	# Store the right value into the new left address {*storeIndex = *right}
 	movq	%rax, (%rbp)	# Store the left value into the right address {*right = temp/rax} (end of swap)
 	leaq	-8(%rbx), %rsi	# Decrement the left address (storeIndex) by one double pointer (8 bytes), store in %rsi, call quicksort
-	call	quicksort		# Recurse into a new quicksort
+	call	_quicksort		# Recurse into a new quicksort
 	leaq	8(%rbx), %rdi	# Increment the left address by one double pointer, store in %rdi
 	cmpq	%rdi, %rbp		# Compare left address and right address
 	ja	.L22				# Jump back to L22 if right address > left address (jumps instead of recurses)
@@ -50,11 +49,10 @@ quicksort:
 	popq	%rbx			# Pop %rbx to restore previous state (pivotValue when recursing) before function returns and jumps back to L22
 	popq	%rbp			# Pop %rbp to restore previous state (right address when recursing) before function returns and jumps back to L22
 	ret						# Return from the quicksort
-.globl qs
-	.type	qs, @function	# Function declaration
-qs:
+.globl _qs
+_qs:
 	movl	%edi, %eax 				# Move n into %eax (passed from main)
 	movq	%rsi, %rdi 				# Move array location into %rdi (this becomes the left pointer for quicksort)
 	cltq							# Convert %eax from double to quad-word, store in %rax
 	leaq	-8(%rsi,%rax,8), %rsi	# Increment %rsi location by n-1 double pointers to reach the other end (this becomes the right pointer for quicksort)
-	jmp	quicksort					# Jump into quicksort
+	jmp	_quicksort					# Jump into quicksort
