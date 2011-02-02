@@ -9,11 +9,11 @@ quicksort:
 .L22:
 	movq	(%rbp), %rax
 	movsd	(%rdi), %xmm1
-	cmpq	%rdi, %rbp
 	movq	%rdi, %rbx
 	movq	%rax, (%rdi)
 	movsd	%xmm1, (%rbp)
 	movq	%rdi, %rax
+	cmpq	%rdi, %rbp
 	jbe	.L15
 .L23:
 	movsd	(%rax), %xmm0
