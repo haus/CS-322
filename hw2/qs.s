@@ -54,6 +54,7 @@ void qs(int n, double* array) {
 }
 
 */
+
 /*
 * Assembly notes
 * gcc Generated a partition procedure, but also inlined the procedure into our quicksort (thanks gcc!), so we deleted the procedure.
