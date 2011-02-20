@@ -157,7 +157,31 @@ class IRGen {
             }
 
             public Object visit(Ast.WriteSt s)  {
-                // ...
+                //IR.Operand[] ts = new IR.Operand[s.exps.length];
+                for (int i = 0; i < s.exps.length; i++)
+                {
+                    IR.Operand t1 = gen(s.exps[i]);
+                    int type = ir_type(s.exps[i].type);
+                    if(type  == 0) //Bool
+                    {
+                        code.add(new IR.Mov(IR.BOOL, t1, new IR.Arg(0)));
+                        code.add(new IR.Call(true,new IR.StringLit("write_bool"),1,false));
+                        code.add(new IR.Call(true,new IR.StringLit("write_newline"),0,false));
+                    }
+                    else if(type == 1) //Int
+                    {
+                        code.add(new IR.Mov(IR.INT, t1, new IR.Arg(0)));
+                        code.add(new IR.Call(true,new IR.StringLit("write_int"),1,false));
+                        code.add(new IR.Call(true,new IR.StringLit("write_newline"),0,false));
+                    }
+                    else if(type == 2) //Ptr
+                    {
+                        code.add(new IR.Mov(IR.PTR, t1, new IR.Arg(0)));
+                        code.add(new IR.Call(true,new IR.StringLit("write_string"),1,false));
+                        code.add(new IR.Call(true,new IR.StringLit("write_newline"),0,false));
+                    }
+
+                }
                 return null;
             }
 
