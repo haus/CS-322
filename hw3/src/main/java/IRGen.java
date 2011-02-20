@@ -186,7 +186,15 @@ class IRGen {
             }
 
             public Object visit(Ast.IfSt s)  {
-                // ...
+                int ltrue = nextLabel++;
+                int lfalse = nextLabel++;
+                gen(s.test, ltrue, lfalse);
+
+                code.add(new IR.LabelDec(ltrue));
+                gen(s.ifTrue, lexit, lreturn);
+
+                code.add(new IR.LabelDec(lfalse));
+                gen(s.ifFalse, lexit, lreturn);
 
                 return null;
             }
