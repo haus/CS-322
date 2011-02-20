@@ -317,14 +317,22 @@ class IRGen {
                     // boolean-valued expression
                     int lfalse = nextLabel++;
                     int ltrue = nextLabel++;
-                    gen(e,ltrue,lfalse);
-                    // ...
+                    gen(e, ltrue, lfalse);
+
+                    IR.Operand t = new IR.Temp(nextTemp++);
+
+                    code.add(new IR.LabelDec(ltrue));
+                    code.add(new IR.Mov(0, IR.TRUE, t));
+
+                    code.add(new IR.LabelDec(lfalse));
+                    code.add(new IR.Mov(0, IR.FALSE, t));
+
                     return null; // just temporary -- not the right thing for the real version
                 }
             }
 
             public Object visit(Ast.UnOpExp e)  {
-                // ...
+                // uminus def...is not a possibility?
                 return null;  // just temporary -- not the right thing for the real version
             }
 
@@ -443,7 +451,41 @@ class IRGen {
                 code.add(new IR.LabelDec(lright));
                 gen(e0.right, ltrue, lfalse);
             } else if (e0.binOp >= Ast.LT && e0.binOp <= Ast.NEQ) {
-                // ...
+                // Same for all int...reals would use a, ae, b, be
+                code.add(new IR.Cmp(1, gen(e0.left), gen(e0.right)));
+                int op = 0;
+
+                switch (e0.binOp) {
+                    case Ast.LT:
+                        op = 5;
+                        break;
+
+                    case Ast.LEQ:
+                        op = 6;
+                        break;
+
+                    case Ast.GT:
+                        op = 3;
+                        break;
+
+                    case Ast.GEQ:
+                        op = 4;
+                        break;
+
+                    case Ast.EQ:
+                        op = 1;
+                        break;
+
+                    case Ast.NEQ:
+                        op = 2;
+                        break;
+                }
+
+                // Slightly less messy. Add an appropriate jump.
+                code.add(new IR.Jump(op, ltrue));
+
+                // Same for all int...
+                code.add(new IR.Jump(0, lfalse));
             }
             // other cases impossible
         } else if (e instanceof Ast.UnOpExp) {
