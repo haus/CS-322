@@ -71,7 +71,7 @@
       <file leaf-file-name="IRGen.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/IRGen.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="409" column="33" selection-start="15693" selection-end="15693" vertical-scroll-proportion="7.04908">
+            <state line="232" column="81" selection-start="7958" selection-end="7958" vertical-scroll-proportion="0.4057508">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -82,7 +82,7 @@
       <file leaf-file-name="Ast.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Ast.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="42" selection-start="0" selection-end="26372" vertical-scroll-proportion="0.0">
+            <state line="771" column="35" selection-start="25259" selection-end="25259" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -410,14 +410,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Ast.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="42" selection-start="0" selection-end="26372" vertical-scroll-proportion="0.0">
+        <state line="771" column="35" selection-start="25259" selection-end="25259" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/IRGen.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="409" column="33" selection-start="15693" selection-end="15693" vertical-scroll-proportion="7.04908">
+        <state line="232" column="81" selection-start="7958" selection-end="7958" vertical-scroll-proportion="0.4057508">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

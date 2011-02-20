@@ -19,7 +19,7 @@ class IRGen {
 
     // Round x up to nearest multiple of p, provided p is a multiple of 2
     static int roundup(int x,int p) {
-        return (x + p - 1) & ~(p-1);
+        return (x + p - 1) & ~(p - 1);
     }
 
     // Return byte offset of n'th field in record
@@ -163,6 +163,7 @@ class IRGen {
 
             public Object visit(Ast.IfSt s)  {
                 // ...
+
                 return null;
             }
 
@@ -230,11 +231,31 @@ class IRGen {
                     IR.Operand t2 = gen(e.right);
                     IR.Operand t = new IR.Temp(nextTemp++);
                     switch (e.binOp) { // think about using a table here instead!
-                        // ...
                         case Ast.PLUS:
                             code.add(new IR.Arith(IR.INT,IR.ADD,t1,t2,t));
                             break;
-                        // ...
+
+                        case Ast.MINUS:
+                            code.add(new IR.Arith(IR.INT,IR.SUB,t1,t2,t));
+                            break;
+
+                        case Ast.TIMES:
+                            code.add(new IR.Arith(IR.INT,IR.MUL,t1,t2,t));
+                            break;
+
+                        case Ast.DIV:
+                            code.add(new IR.Arith(IR.INT,IR.DIV,t1,t2,t));
+                            break;
+
+                        case Ast.MOD:
+                            code.add(new IR.Arith(IR.INT,IR.MOD,t1,t2,t));
+                            break;
+
+                        // Reals here...
+                        case Ast.SLASH:
+                            code.add(new IR.Arith(IR.INT,IR.DIV,t1,t2,t));
+                            break;
+
                     }
                     return t;
                 } else {
