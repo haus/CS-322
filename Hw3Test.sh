@@ -3,7 +3,7 @@
 for F in `ls fabTest/*.fab`;
 do 
 	echo $F
-	filename=${F%.*b}      #  Strip ".mac" suffix of
+	filename=${F%.*b}      #  Strip ".fab" suffix off
 	
 	# Create the IR files
 	java -classpath .:hw3/src/main/java:resources/frontend.jar IRGenDriver $F $filename-1.ir
