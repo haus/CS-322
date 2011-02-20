@@ -201,12 +201,32 @@ class IRGen {
 
 
             public Object visit(Ast.WhileSt s)  {
-                // ...
+                int ltest = nextLabel++;
+                int lbody = nextLabel++;
+                int lend = nextLabel++;
+                code.add(new IR.LabelDec(ltest));
+                gen(s.test, lbody, lend);
+
+                code.add(new IR.LabelDec(lbody));
+                gen(s.body, lend, lreturn);
+
+                code.add(new IR.Jump(0, ltest));
+                code.add(new IR.LabelDec(lend));
+
                 return null;
             }
 
             public Object visit(Ast.LoopSt s)  {
-                // ...
+                int lbody = nextLabel++;
+                int lend = nextLabel++;
+                code.add(new IR.LabelDec(lbody));
+
+                gen(s.body, lend, lreturn);
+
+                code.add(new IR.Jump(0, lbody));
+
+                code.add(new IR.LabelDec(lend));
+
                 return null;
             }
 
