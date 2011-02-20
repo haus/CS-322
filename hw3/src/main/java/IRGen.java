@@ -131,7 +131,7 @@ class IRGen {
             }
 
             public Object visit(Ast.CallSt s)  {
-                // ...
+                genCall(s.func,s.args,false);
                 return null;
             }
 
@@ -308,7 +308,7 @@ class IRGen {
 
                         // Reals here...
                         case Ast.SLASH:
-                            code.add(new IR.Arith(IR.INT,IR.DIV,t1,t2,t));
+                            // Nothing to do really.
                             break;
 
                     }
@@ -416,8 +416,8 @@ class IRGen {
             }
 
             public Object visit(Ast.RecordExp e)  {
-                // ...
-                return null;  // just temporary -- not the right thing for the real version
+                int ir_element_type = ir_type(e.type);
+                return null;
             }
 
             public Object visit(Ast.IntLitExp e)  {
