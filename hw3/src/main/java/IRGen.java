@@ -126,7 +126,7 @@ class IRGen {
         class StVisitor implements Ast.StVisitor {
 
             public Object visit(Ast.AssignSt s)  {
-                // ...
+                code.add(new IR.Mov(ir_type(s.rhs.type), gen(s.rhs), gen(s.lhs)));
                 return null;
             }
 
@@ -235,7 +235,7 @@ class IRGen {
             public Object visit(Ast.ForSt s)  {
                 int ltest = nextLabel++;
                 int lend = nextLabel++;
-                IR.Operand startVar = gen(new Ast.VarLvalue(s.line, s.loopVar));
+                IR.Name startVar = new IR.Name(s.loopVar + "_" + s.unique);
 
                 // Loop Setup
                 code.add(new IR.Mov(IR.INT, gen(s.start), startVar));
@@ -436,7 +436,7 @@ class IRGen {
             }
 
             public Object visit(Ast.RecordExp e)  {
-                int ir_element_type = ir_type(e.type);
+                //int ir_element_type = ir_type(e.type);
                 return null;
             }
 
@@ -551,12 +551,15 @@ class IRGen {
             }
 
         }
+
         IR.Operand r = null;
+
         try {
             r = (IR.Operand) l.accept(new LvalueVisitor());
         } catch (Ast.Error exn) {
             System.err.println(exn.getMessage());
         }
+
         return r;
     }
 
