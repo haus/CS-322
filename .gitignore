@@ -8,3 +8,4 @@ out/*
 .DS_Store
 out/production/Hw1/*
 out/production/Hw1/*.class
+*.iws
