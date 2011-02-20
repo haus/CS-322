@@ -116,7 +116,9 @@ class IRGen {
 
         try {
             d0.accept(new DeclarationVisitor());
-        } catch (Ast.Error exn) {}
+        } catch (Ast.Error exn) {
+            System.err.println(exn.getMessage());
+        }
     }
 
     static void gen(Ast.St s, final int lexit, final int lreturn)  {
@@ -258,7 +260,8 @@ class IRGen {
         try {
             s.accept(new StVisitor());
         } catch (Ast.Error exn) {
-        };
+            System.err.println(exn.getMessage());
+        }
     }
 
 
@@ -420,7 +423,8 @@ class IRGen {
         try {
             r = (IR.Operand) e.accept(new ExpVisitor());
         } catch (Ast.Error exn) {
-        };
+            System.err.println(exn.getMessage());
+        }
         return r;
     }
 
@@ -480,7 +484,9 @@ class IRGen {
         IR.Operand r = null;
         try {
             r = (IR.Operand) l.accept(new LvalueVisitor());
-        } catch (Ast.Error exn) {}
+        } catch (Ast.Error exn) {
+            System.err.println(exn.getMessage());
+        }
         return r;
     }
 
