@@ -233,7 +233,27 @@ class IRGen {
             }
 
             public Object visit(Ast.ForSt s)  {
-                // ...
+                int ltest = nextLabel++;
+                int lend = nextLabel++;
+                IR.Operand startVar = gen(new Ast.VarLvalue(s.line, s.loopVar));
+
+                // Loop Setup
+                code.add(new IR.Mov(IR.INT, gen(s.start), startVar));
+
+                // Loop Test
+                code.add(new IR.LabelDec(ltest));
+                code.add(new IR.Cmp(IR.INT, startVar, gen(s.stop)));
+
+                // End if greater than stop cond.
+                code.add(new IR.Jump(3, lend));
+
+                // Otherwise, the body.
+                gen(s.body, lend, lreturn);
+
+                // Increment the counter and jump to the test...
+                code.add(new IR.Arith(IR.INT, IR.ADD, startVar, gen(s.step), startVar));
+                code.add(new IR.Jump(0, ltest));
+
                 return null;
             }
 
