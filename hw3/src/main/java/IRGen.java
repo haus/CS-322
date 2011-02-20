@@ -327,13 +327,19 @@ class IRGen {
                     code.add(new IR.LabelDec(lfalse));
                     code.add(new IR.Mov(0, IR.FALSE, t));
 
-                    return null; // just temporary -- not the right thing for the real version
+                    return t;
                 }
             }
 
             public Object visit(Ast.UnOpExp e)  {
-                // uminus def...is not a possibility?
-                return null;  // just temporary -- not the right thing for the real version
+                if (e.unOp == Ast.UMINUS) {
+                    IR.Operand t1 = gen(e.operand);
+                    IR.Operand t = new IR.Temp(nextLabel++);
+                    code.add(new IR.Arith(IR.INT,IR.SUB,IR.ZERO,t1,t));
+                    return t;
+                } else {
+                    return null;
+                }
             }
 
             public Object visit(Ast.LvalExp e)  {
