@@ -534,7 +534,7 @@ class IRGen {
 
             public Object visit(Ast.ArrayDerefLvalue l) {
                 // ...
-                return null;  // just temporary -- not the right thing for the real version
+                return null;
             }
 
             public Object visit(Ast.RecordDerefLvalue l) {
