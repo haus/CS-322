@@ -231,11 +231,13 @@ class IRGen {
                 IR.Name startVar = new IR.Name(s.loopVar + "_" + s.unique);
 
                 // Loop Setup
+                IR.Operand stop = gen(s.stop);
+                IR.Operand step = gen(s.step);
                 code.add(new IR.Mov(ir_type(s.start.type), gen(s.start), startVar));
 
                 // Loop Test
                 code.add(new IR.LabelDec(ltest));
-                code.add(new IR.Cmp(ir_type(s.start.type), startVar, gen(s.stop)));
+                code.add(new IR.Cmp(ir_type(s.start.type), startVar, stop));
 
                 // End if greater than stop cond.
                 code.add(new IR.Jump(3, lend));
@@ -244,7 +246,7 @@ class IRGen {
                 gen(s.body, lend, lreturn);
 
                 // Increment the counter and jump to the test...
-                code.add(new IR.Arith(ir_type(s.start.type), IR.ADD, startVar, gen(s.step), startVar));
+                code.add(new IR.Arith(ir_type(s.start.type), IR.ADD, startVar, step, startVar));
                 code.add(new IR.Jump(0, ltest));
 
                 code.add(new IR.LabelDec(lend));
