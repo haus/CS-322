@@ -449,8 +449,7 @@ class IRGen {
         } else if (e instanceof Ast.UnOpExp) {
             Ast.UnOpExp e0 = (Ast.UnOpExp) e;
             if (e0.unOp == Ast.NOT)
-                // ...
-                ;
+                gen(e0, lfalse, ltrue);
             // other cases impossible
         } else {
             IR.Operand t = gen(e);  // must already be a value
