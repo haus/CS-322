@@ -438,7 +438,10 @@ class IRGen {
                 code.add(new IR.LabelDec(lright));
                 gen(e0.right, ltrue, lfalse);
             } else if (e0.binOp == Ast.OR) {
-                // ...
+                int lright = nextLabel++;
+                gen(e0.left, ltrue, lright);
+                code.add(new IR.LabelDec(lright));
+                gen(e0.right, ltrue, lfalse);
             } else if (e0.binOp >= Ast.LT && e0.binOp <= Ast.NEQ) {
                 // ...
             }
