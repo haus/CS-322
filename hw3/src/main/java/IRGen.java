@@ -136,7 +136,10 @@ class IRGen {
         class StVisitor implements Ast.StVisitor {
 
             public Object visit(Ast.AssignSt s)  {
-                code.add(new IR.Mov(ir_type(s.rhs.type), gen(s.rhs), gen(s.lhs)));
+                IR.Operand l = gen(s.lhs);
+                IR.Operand r = gen(s.rhs);
+
+                code.add(new IR.Mov(ir_type(s.rhs.type), r, l));
                 return null;
             }
 
@@ -509,27 +512,27 @@ class IRGen {
 
                 switch (e0.binOp) {
                     case Ast.LT:
-                        op = 5;
+                        op = IR.L;
                         break;
 
                     case Ast.LEQ:
-                        op = 6;
+                        op = IR.LE;
                         break;
 
                     case Ast.GT:
-                        op = 3;
+                        op = IR.G;
                         break;
 
                     case Ast.GEQ:
-                        op = 4;
+                        op = IR.GE;
                         break;
 
                     case Ast.EQ:
-                        op = 1;
+                        op = IR.E;
                         break;
 
                     case Ast.NEQ:
-                        op = 2;
+                        op = IR.NE;
                         break;
                 }
 
