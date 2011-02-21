@@ -366,13 +366,29 @@ class IRGen {
             }
 
             public Object visit(Ast.UnOpExp e)  {
+                IR.Operand t = new IR.Temp(nextTemp++);
+
                 if (e.unOp == Ast.UMINUS) {
-                    IR.Operand t = new IR.Temp(nextTemp++);
                     code.add(new IR.Arith(IR.INT,IR.SUB,IR.ZERO,gen(e.operand),t));
-                    return t;
-                } else {
-                    return null;
+                } else if (e.unOp == Ast.NOT) {
+                    int lnewt = nextLabel++;
+                    int lnewf = nextLabel++;
+                    int lend = nextLabel++;
+
+                    code.add(new IR.Cmp(ir_type(e.operand.type), gen(e.operand), IR.FALSE));
+                    code.add(new IR.Jump(IR.E, lnewt));
+                    code.add(new IR.Jump(0, lnewf));
+
+                    code.add(new IR.LabelDec(lnewf));
+                    code.add(new IR.Mov(ir_type(e.operand.type), IR.FALSE, t));
+                    code.add(new IR.Jump(0, lend));
+
+                    code.add(new IR.LabelDec(lnewt));
+                    code.add(new IR.Mov(ir_type(e.operand.type), IR.TRUE, t));
+
+                    code.add(new IR.LabelDec(lend));
                 }
+                return t;
             }
 
             public Object visit(Ast.LvalExp e)  {
