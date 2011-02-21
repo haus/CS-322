@@ -340,6 +340,10 @@ class IRGen {
                         case Ast.MOD:
                             code.add(new IR.Arith(IR.INT,IR.MOD,t1,t2,t));
                             break;
+
+                        case Ast.SLASH:
+                            code.add(new IR.Arith(IR.INT, -1, t1, t2, t));
+                            break;
                     }
 
                     return t;
