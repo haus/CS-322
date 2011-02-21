@@ -183,13 +183,18 @@ class IRGen {
             public Object visit(Ast.IfSt s)  {
                 int ltrue = nextLabel++;
                 int lfalse = nextLabel++;
+                int lend = nextLabel++;
                 gen(s.test, ltrue, lfalse);
 
                 code.add(new IR.LabelDec(ltrue));
                 gen(s.ifTrue, lexit, lreturn);
 
+                code.add(new IR.Jump(0, lend));
+
                 code.add(new IR.LabelDec(lfalse));
                 gen(s.ifFalse, lexit, lreturn);
+
+                code.add(new IR.LabelDec(lend));
 
                 return null;
             }
@@ -332,8 +337,8 @@ class IRGen {
                     return t;
                 } else {
                     // boolean-valued expression
-                    int lfalse = nextLabel++;
                     int ltrue = nextLabel++;
+                    int lfalse = nextLabel++;
                     gen(e, ltrue, lfalse);
 
                     IR.Operand t = new IR.Temp(nextTemp++);
@@ -433,7 +438,18 @@ class IRGen {
             }
 
             public Object visit(Ast.RecordExp e)  {
-                //int ir_element_type = ir_type(e.type);
+                /*
+                for (int i = 0; i < e.initializers.length; i++) {
+
+                }
+                IR.Operand addr = tempify(IR.PTR,gen(l.record));
+                int l1 = nextLabel++;
+                code.add(new IR.Cmp(IR.PTR,addr,IR.NIL));
+                code.add(new IR.Jump(IR.NE,l1));
+                code.add(new IR.Call(true,new IR.StringLit("nil_pointer"),0,false));
+                code.add(new IR.LabelDec(l1));
+                return new IR.Mem(addr,new IR.IntLit(calc_byte_offset(l.typeDec,l.offset)),1);
+                */
                 return null;
             }
 
@@ -543,12 +559,10 @@ class IRGen {
                 // Bounds error label...
                 int l1 = nextLabel++;
 
-                // Temp to hold array size...
-                //IR.Operand t = new IR.Temp(nextTemp++);
-                // Load array size
-                //code.add(new IR.Mov(IR.INT, new IR.Mem(base, IR.MONE, IR.type_size[IR.INT]), t)); // store count
-
+                // Compare index to array size...
                 code.add(new IR.Cmp(IR.INT, index, new IR.Mem(base, IR.MONE, IR.type_size[IR.INT])));
+
+                // Jump to below error state if valid. Otherwise go to error state.
                 code.add(new IR.Jump(IR.B,l1));
 
                 code.add(new IR.Call(true,new IR.StringLit("bounds_error"),0,false));
