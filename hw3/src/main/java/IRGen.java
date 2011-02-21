@@ -438,10 +438,10 @@ class IRGen {
             }
 
             public Object visit(Ast.RecordExp e)  {
-                /*
                 for (int i = 0; i < e.initializers.length; i++) {
 
                 }
+                /*
                 IR.Operand addr = tempify(IR.PTR,gen(l.record));
                 int l1 = nextLabel++;
                 code.add(new IR.Cmp(IR.PTR,addr,IR.NIL));
