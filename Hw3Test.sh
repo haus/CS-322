@@ -10,7 +10,7 @@ do
 	java -classpath .:hw3-sol/ir.jar:hw3-sol/frontend.jar IRGenDriver $F $filename-2.ir
 
 	# Diff the files
-	diff $filename-1.ir $filename-2.ir > $filename.diff
+	diff $filename-1.ir $filename-2.ir
 	
 	# Clean up the files.
 	rm $filename-1.ir $filename-2.ir
