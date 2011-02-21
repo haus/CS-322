@@ -360,7 +360,6 @@ class IRGen {
                     code.add(new IR.Mov(0, IR.TRUE, t));
                     code.add(new IR.LabelDec(lend));
 
-
                     return t;
                 }
             }
@@ -375,9 +374,7 @@ class IRGen {
                     int lnewf = nextLabel++;
                     int lend = nextLabel++;
 
-                    code.add(new IR.Cmp(ir_type(e.operand.type), gen(e.operand), IR.FALSE));
-                    code.add(new IR.Jump(IR.E, lnewt));
-                    code.add(new IR.Jump(0, lnewf));
+                    gen(e.operand, lnewf, lnewt);
 
                     code.add(new IR.LabelDec(lnewf));
                     code.add(new IR.Mov(ir_type(e.operand.type), IR.FALSE, t));
@@ -387,6 +384,7 @@ class IRGen {
                     code.add(new IR.Mov(ir_type(e.operand.type), IR.TRUE, t));
 
                     code.add(new IR.LabelDec(lend));
+
                 }
                 return t;
             }
@@ -559,6 +557,7 @@ class IRGen {
         } else if (e instanceof Ast.UnOpExp) {
             Ast.UnOpExp e0 = (Ast.UnOpExp) e;
             if (e0.unOp == Ast.NOT) {
+
                 int lnewt = nextLabel++;
                 int lnewf = nextLabel++;
                 int lend = nextLabel++;
