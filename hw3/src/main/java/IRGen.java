@@ -244,13 +244,14 @@ class IRGen {
             }
 
             public Object visit(Ast.ForSt s)  {
-                int ltest = nextLabel++;
-                int lend = nextLabel++;
                 IR.Name startVar = new IR.Name(s.loopVar + "_" + s.unique);
 
                 // Loop Setup
                 IR.Operand stop = gen(s.stop);
                 IR.Operand step = gen(s.step);
+
+                int ltest = nextLabel++;
+
                 code.add(new IR.Mov(ir_type(s.start.type), gen(s.start), startVar));
 
                 // Loop Test
@@ -258,6 +259,7 @@ class IRGen {
                 code.add(new IR.Cmp(ir_type(s.start.type), startVar, stop));
 
                 // End if greater than stop cond.
+                int lend = nextLabel++;
                 code.add(new IR.Jump(3, lend));
 
                 // Otherwise, the body.
