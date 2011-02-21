@@ -246,13 +246,16 @@ class IRGen {
             public Object visit(Ast.ForSt s)  {
                 IR.Name startVar = new IR.Name(s.loopVar + "_" + s.unique);
 
-                // Loop Setup
-                IR.Operand stop = gen(s.stop);
-                IR.Operand step = gen(s.step);
+
 
                 int ltest = nextLabel++;
 
-                code.add(new IR.Mov(ir_type(s.start.type), gen(s.start), startVar));
+                // Loop Setup
+                IR.Operand start = gen(s.start);
+                IR.Operand stop = gen(s.stop);
+                IR.Operand step = gen(s.step);
+
+                code.add(new IR.Mov(ir_type(s.start.type), start, startVar));
 
                 // Loop Test
                 code.add(new IR.LabelDec(ltest));
