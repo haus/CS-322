@@ -533,8 +533,28 @@ class IRGen {
             }
 
             public Object visit(Ast.ArrayDerefLvalue l) {
-                // ...
-                return null;
+                // Get base array address, array size, get array type, check bounds, return address.
+                // Base address.
+                IR.Operand base = tempify(IR.PTR,gen(l.array));
+
+                // Index code
+                IR.Operand index = gen(l.index);
+
+                // Bounds error label...
+                int l1 = nextLabel++;
+
+                // Temp to hold array size...
+                //IR.Operand t = new IR.Temp(nextTemp++);
+                // Load array size
+                //code.add(new IR.Mov(IR.INT, new IR.Mem(base, IR.MONE, IR.type_size[IR.INT]), t)); // store count
+
+                code.add(new IR.Cmp(IR.INT, index, new IR.Mem(base, IR.MONE, IR.type_size[IR.INT])));
+                code.add(new IR.Jump(IR.B,l1));
+
+                code.add(new IR.Call(true,new IR.StringLit("bounds_error"),0,false));
+                code.add(new IR.LabelDec(l1));
+
+                return new IR.Mem(base, index, IR.type_size[ir_type(l.type)]);
             }
 
             public Object visit(Ast.RecordDerefLvalue l) {
