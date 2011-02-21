@@ -557,25 +557,7 @@ class IRGen {
         } else if (e instanceof Ast.UnOpExp) {
             Ast.UnOpExp e0 = (Ast.UnOpExp) e;
             if (e0.unOp == Ast.NOT) {
-
-                int lnewt = nextLabel++;
-                int lnewf = nextLabel++;
-                int lend = nextLabel++;
-                int temp = nextTemp++;
-
-                code.add(new IR.Cmp(ir_type(e0.operand.type), gen(e0.operand), IR.FALSE));
-                code.add(new IR.Jump(IR.E, lnewt));
-                code.add(new IR.Jump(0, lnewf));
-
-                code.add(new IR.LabelDec(lnewf));
-                code.add(new IR.Mov(ir_type(e0.operand.type), IR.FALSE, new IR.Temp(temp)));
-                code.add(new IR.Jump(0, lend));
-
-                code.add(new IR.LabelDec(lnewt));
-                code.add(new IR.Mov(ir_type(e0.operand.type), IR.TRUE, new IR.Temp(temp)));
-
-                code.add(new IR.LabelDec(lend));
-
+                gen(e0.operand, lfalse,  ltrue);
             }
             // other cases impossible
         } else {
