@@ -1,9 +1,4 @@
 {
-  var i : integer := 0;
-  var up := @boolean {15 of true};
-  var down := @boolean {15 of true};
-  var rows := @boolean {15 of true};
-  var x := @integer {8 of 12};
-
-  write(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7])
+  var a := @integer {15 of 0};
+  write(a[0])
 }

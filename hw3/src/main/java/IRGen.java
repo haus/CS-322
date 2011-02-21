@@ -337,27 +337,26 @@ class IRGen {
                         case Ast.MOD:
                             code.add(new IR.Arith(IR.INT,IR.MOD,t1,t2,t));
                             break;
-
-                        // Reals here...
-                        case Ast.SLASH:
-                            // Nothing to do really.
-                            break;
-
                     }
                     return t;
                 } else {
                     // boolean-valued expression
-                    int ltrue = nextLabel++;
                     int lfalse = nextLabel++;
+                    int ltrue = nextLabel++;
+                    int lend = nextLabel++;
+
                     gen(e, ltrue, lfalse);
 
                     IR.Operand t = new IR.Temp(nextTemp++);
 
-                    code.add(new IR.LabelDec(ltrue));
-                    code.add(new IR.Mov(0, IR.TRUE, t));
-
                     code.add(new IR.LabelDec(lfalse));
                     code.add(new IR.Mov(0, IR.FALSE, t));
+                    code.add(new IR.Jump(0, lend));
+
+                    code.add(new IR.LabelDec(ltrue));
+                    code.add(new IR.Mov(0, IR.TRUE, t));
+                    code.add(new IR.LabelDec(lend));
+
 
                     return t;
                 }
@@ -505,7 +504,7 @@ class IRGen {
                 gen(e0.right, ltrue, lfalse);
             } else if (e0.binOp >= Ast.LT && e0.binOp <= Ast.NEQ) {
                 // Same for all int...reals would use a, ae, b, be
-                code.add(new IR.Cmp(1, gen(e0.left), gen(e0.right)));
+                code.add(new IR.Cmp(ir_type(e0.left.type), gen(e0.left), gen(e0.right)));
                 int op = 0;
 
                 switch (e0.binOp) {
@@ -536,8 +535,6 @@ class IRGen {
 
                 // Slightly less messy. Add an appropriate jump.
                 code.add(new IR.Jump(op, ltrue));
-
-                // Same for all int...
                 code.add(new IR.Jump(0, lfalse));
             }
             // other cases impossible
