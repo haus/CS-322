@@ -367,9 +367,8 @@ class IRGen {
 
             public Object visit(Ast.UnOpExp e)  {
                 if (e.unOp == Ast.UMINUS) {
-                    IR.Operand t1 = gen(e.operand);
-                    IR.Operand t = new IR.Temp(nextLabel++);
-                    code.add(new IR.Arith(IR.INT,IR.SUB,IR.ZERO,t1,t));
+                    IR.Operand t = new IR.Temp(nextTemp++);
+                    code.add(new IR.Arith(IR.INT,IR.SUB,IR.ZERO,gen(e.operand),t));
                     return t;
                 } else {
                     return null;
@@ -543,8 +542,26 @@ class IRGen {
             // other cases impossible
         } else if (e instanceof Ast.UnOpExp) {
             Ast.UnOpExp e0 = (Ast.UnOpExp) e;
-            if (e0.unOp == Ast.NOT)
-                gen(e0, lfalse, ltrue);
+            if (e0.unOp == Ast.NOT) {
+                int lnewt = nextLabel++;
+                int lnewf = nextLabel++;
+                int lend = nextLabel++;
+                int temp = nextTemp++;
+
+                code.add(new IR.Cmp(ir_type(e0.operand.type), gen(e0.operand), IR.FALSE));
+                code.add(new IR.Jump(IR.E, lnewt));
+                code.add(new IR.Jump(0, lnewf));
+
+                code.add(new IR.LabelDec(lnewf));
+                code.add(new IR.Mov(ir_type(e0.operand.type), IR.FALSE, new IR.Temp(temp)));
+                code.add(new IR.Jump(0, lend));
+
+                code.add(new IR.LabelDec(lnewt));
+                code.add(new IR.Mov(ir_type(e0.operand.type), IR.TRUE, new IR.Temp(temp)));
+
+                code.add(new IR.LabelDec(lend));
+
+            }
             // other cases impossible
         } else {
             IR.Operand t = gen(e);  // must already be a value
