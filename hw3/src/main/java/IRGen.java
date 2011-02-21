@@ -341,16 +341,17 @@ class IRGen {
                             code.add(new IR.Arith(IR.INT,IR.MOD,t1,t2,t));
                             break;
                     }
+
                     return t;
                 } else {
                     // boolean-valued expression
                     int lfalse = nextLabel++;
                     int ltrue = nextLabel++;
-                    int lend = nextLabel++;
-
-                    gen(e, ltrue, lfalse);
 
                     IR.Operand t = new IR.Temp(nextTemp++);
+
+                    gen(e, ltrue, lfalse);
+                    int lend = nextLabel++;
 
                     code.add(new IR.LabelDec(lfalse));
                     code.add(new IR.Mov(0, IR.FALSE, t));
@@ -365,16 +366,19 @@ class IRGen {
             }
 
             public Object visit(Ast.UnOpExp e)  {
-                IR.Operand t = new IR.Temp(nextTemp++);
-
                 if (e.unOp == Ast.UMINUS) {
-                    code.add(new IR.Arith(IR.INT,IR.SUB,IR.ZERO,gen(e.operand),t));
+                    IR.Operand operand = gen(e.operand);
+                    IR.Operand t = new IR.Temp(nextTemp++);
+
+                    code.add(new IR.Arith(IR.INT, IR.SUB, IR.ZERO, operand, t));
+                    return t;
                 } else if (e.unOp == Ast.NOT) {
                     int lnewt = nextLabel++;
                     int lnewf = nextLabel++;
-                    int lend = nextLabel++;
 
                     gen(e.operand, lnewf, lnewt);
+                    IR.Operand t = new IR.Temp(nextTemp++);
+                    int lend = nextLabel++;
 
                     code.add(new IR.LabelDec(lnewf));
                     code.add(new IR.Mov(ir_type(e.operand.type), IR.FALSE, t));
@@ -384,9 +388,9 @@ class IRGen {
                     code.add(new IR.Mov(ir_type(e.operand.type), IR.TRUE, t));
 
                     code.add(new IR.LabelDec(lend));
-
+                    return t;
                 }
-                return t;
+                return null;
             }
 
             public Object visit(Ast.LvalExp e)  {
@@ -557,7 +561,7 @@ class IRGen {
         } else if (e instanceof Ast.UnOpExp) {
             Ast.UnOpExp e0 = (Ast.UnOpExp) e;
             if (e0.unOp == Ast.NOT) {
-                gen(e0.operand, lfalse,  ltrue);
+                gen(e0.operand, lfalse, ltrue);
             }
             // other cases impossible
         } else {
