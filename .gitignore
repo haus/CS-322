@@ -9,3 +9,5 @@ out/*
 out/production/Hw1/*
 out/production/Hw1/*.class
 *.iws
+*.ir
+*.diff
