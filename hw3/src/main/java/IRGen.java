@@ -109,12 +109,11 @@ class IRGen {
 
             public Object visit(Ast.FuncDecs d0)  {
                 String [] funcArray = new String[d0.decs.length];
-                int j = 0;
                 for(int i= 0; i < d0.decs.length; i++)
                 {
                     String ir_name = d0.decs[i].name + "_" + d0.decs[i].unique;
                     locals.add(new IR.Var(ir_name, IR.PTR));
-                    funcArray[j++] = ir_name;
+                    funcArray[i] = ir_name;
                     todo.add(d0.decs[i]);
                 }
                 code.add(new IR.MkClosure(funcArray));
