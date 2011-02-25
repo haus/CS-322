@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for F in `ls fabTest/*.fab`;
+for F in `ls fab/*.fab`;
 do 
 	echo $F
 	filename=${F%.*b}      #  Strip ".fab" suffix off

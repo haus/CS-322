@@ -1,0 +1,4 @@
+record dtree { v1 : integer, v2 : integer, l : dtree, r : dtree };
+{
+  var simple := dtree{l := nil, v1 := 6*(3+5), r := nil, v2 := 5+(7*4)}
+}

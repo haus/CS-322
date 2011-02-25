@@ -1,0 +1,4 @@
+record dtree { b1 : boolean, b2: boolean, b3 : boolean, b4: boolean, b5: boolean, b6: boolean, v1: integer};
+{
+  var simple := dtree{v1 := 1, b1 := true, b2 := true, b3 := true, b4 := true, b5 := true, b6 := true}
+}

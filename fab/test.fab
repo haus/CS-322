@@ -3,5 +3,5 @@
     return 5
   };
 
-  test()
+  write(test())
 }

@@ -181,9 +181,12 @@ class IRGen {
                     } else if(type == 1) { //Int
                         code.add(new IR.Mov(IR.INT, t1, new IR.Arg(0)));
                         code.add(new IR.Call(true,new IR.StringLit("write_int"),1,false));
-                    } else if(type == 2) { //Ptr
+                    } else if(Ast.is_string_type(s.exps[i].type)) { //Ptr
                         code.add(new IR.Mov(IR.PTR, t1, new IR.Arg(0)));
                         code.add(new IR.Call(true,new IR.StringLit("write_string"),1,false));
+                    } else if (Ast.is_real_type(s.exps[i].type)) { // Real
+                        code.add(new IR.Mov(IR.PTR, t1, new IR.Arg(0)));
+                        code.add(new IR.Call(true, new IR.StringLit("bogus"), 1, false));
                     }
                 }
 
@@ -476,19 +479,16 @@ class IRGen {
 
             public Object visit(Ast.RecordExp e)  {
                 // First figure out how much space to allocate for the record.
-                IR.Operand t = new IR.Temp(nextTemp++);
-                int length = calc_byte_offset(e.typeDec, e.initializers.length-1) + IR.type_size[ir_type(e.initializers[e.initializers.length-1].type)];
+                int length = calc_byte_offset(e.typeDec, e.initializers.length-1) + IR.type_size[ir_type(e.typeDec.all_components[e.initializers.length-1].type)];
 
                 code.add(new IR.Mov(IR.INT, new IR.IntLit(length),new IR.Arg(0)));
                 code.add(new IR.Call(true,new IR.StringLit("alloc"),1,true));
+                IR.Operand t = new IR.Temp(nextTemp++);
                 code.add(new IR.Mov(IR.PTR,IR.RETREG,t));
-
-                int count = 0;
 
                 // Now load the values into the appropriate spots...
                 for (Ast.RecordInit rec : e.initializers) {
-                    code.add(new IR.Mov(ir_type(rec.type), gen(rec.value), new IR.Mem(t, new IR.IntLit(calc_byte_offset(e.typeDec, count)), 1)));
-                    count++;
+                    code.add(new IR.Mov(ir_type(rec.type), gen(rec.value), new IR.Mem(t, new IR.IntLit(calc_byte_offset(e.typeDec, rec.offset)), 1)));
                 }
 
                 return t;
