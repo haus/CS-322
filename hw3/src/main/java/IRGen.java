@@ -2,6 +2,13 @@ import java.io.*;
 import java.util.*;
 
 
+/**
+ * CS 322
+ * HW 3
+ * Matthaus Litteken
+ * Jonah Brasseur
+ */
+
 class IRGen {
 
     static int ir_type (Ast.TypeExp t) {
