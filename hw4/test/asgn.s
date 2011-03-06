@@ -4,24 +4,27 @@
 # $A{0}0	%rsi
 # $RET	%rax
 # y_4	%rax
-# x_3	%rax
 	.p2align 4,0x90
 .globl __$MAIN
 __$MAIN:
 	subq $0,%rsp
     # L0
 L0_0:
-    # movI 8,x_3
-	movl $8,%eax
+    # movI 4,x_3
     # movI 1,y_4
-    # mulI x_3,5,$T0
-	movl %eax,%r10d
-	imull $5,%r10d
+    # modI 19,7,$T0
+	movl $19,%r10d
+	movl $7,%r11d
+	pushq %rax
+	pushq %rdx
+	movl %r10d,%eax
+	cltd
+	idivl %r11d
+	movl %edx,%r10d
+	popq %rdx
+	popq %rax
 	movl %r10d,%eax
     # movI $T0,y_4
-    # movI 3,y_4
-	movl $3,%eax
-    # movI 4,x_3
     # movI y_4,$A{0}0
 	movl %eax,%esi
     # calls{0} <1,false> "write_int"
