@@ -1,28 +1,35 @@
 .text
 # Allocation map
 # $T0	%rax
+# $A{0}0	%rsi
 # $RET	%rax
+# y_4	%rax
+# x_3	%rax
 	.p2align 4,0x90
 .globl __$MAIN
 __$MAIN:
 	subq $0,%rsp
     # L0
 L0_0:
-    # movI 8,x_3
-    # movI 1,y_4
-    # divI 5,2,$T0
-	movl $5,%r10d
-	movl $2,%r11d
-	pushq %rax
-	pushq %rdx
-	movl %r10d,%eax
-	cltd
-	idivl %r11d
+    # movI 24,x_3
+	movl $24,%eax
+    # movI 10,y_4
+	movl $10,%eax
+    # mulI x_3,3,$T0
 	movl %eax,%r10d
-	popq %rdx
-	popq %rax
+	imull $3,%r10d
 	movl %r10d,%eax
     # movI $T0,y_4
+    # movI y_4,$A{0}0
+	movl %eax,%esi
+    # calls{0} <1,false> "write_int"
+	pushq %rdi
+	call _write_int
+	popq %rdi
+    # calls{1} <0,false> "write_newline"
+	pushq %rdi
+	call _write_newline
+	popq %rdi
     # L1
 L0_1:
     # movI 0,$RET

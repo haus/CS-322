@@ -375,7 +375,22 @@ class X86Gen {
                         X86.emit2("imul" + X86.size_suffix[c.type],mright,mdest);
                         break;
                     case IR.DIV:
-                        //X86.emit2("sub" + X86.size_suffix[c.type],mright,tempReg1s);
+                        X86.Reg reg1 = X86.resize_reg(c.type, X86.R10);
+                        X86.Reg reg2 = X86.resize_reg(c.type, X86.R11);
+
+                        X86.emitMov(c.type,mleft,reg1);
+                        X86.emitMov(c.type,mright,reg2);
+                       // X86.emit1("pushq",X86.allRegs[X86.Q]);
+                       // X86.emit1("pushq",X86.RDX);
+                        X86.emit1("pushq",X86.argRegs[3]);
+                        X86.emitMov(c.type,reg1,mdest);
+                        X86.emit0("cltd");
+                        X86.emit1("idiv" + X86.size_suffix[c.type],reg2);
+                        X86.emitMov(c.type,mdest,reg1);
+                        X86.emit1("popq",X86.argRegs[3]);
+                        //X86.emit1("popq",X86.RAX);
+                        //X86.emit1("popq",X86.RDX);
+                        X86.emitMov(c.type,reg1,mdest);
                         break;
                     case IR.MOD:
                         // ...
