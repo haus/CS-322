@@ -344,6 +344,10 @@ class X86Gen {
                 X86.Operand mright = gen_source_operand(c.right,IR.INT,true,true,tempReg2);
                 switch (c.op) {
                     case IR.ADD:
+                        // Note there are two cases to consider:
+                        //   IR.INT + IR.INT -> IR.INT
+                        //   IR.PTR + IR.INT -> IR.PTR
+
                         // Because add's left operand can have pointers
                         // So 2nd parameter has to be c.type and not IR.INT
                         mleft = gen_source_operand(c.left,c.type,true,true,tempReg1);
@@ -355,12 +359,12 @@ class X86Gen {
                         }
                         X86.emit2("add" + X86.size_suffix[c.type],mright,mdest);
 
-                      /*  if(!(mleft instanceof X86.Imm) || !(mright instanceof X86.Imm))
-                        {
-                            System.out.println("YO");
-                            X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
-                            X86.emitMov(c.type,tempReg1s,mdest);
-                        }  */
+                        /*  if(!(mleft instanceof X86.Imm) || !(mright instanceof X86.Imm))
+                      {
+                          System.out.println("YO");
+                          X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
+                          X86.emitMov(c.type,tempReg1s,mdest);
+                      }  */
                         break;
                     case IR.SUB:
                         X86.emitMov(c.type,mleft,mdest);
@@ -379,6 +383,7 @@ class X86Gen {
                 }
                 return null;
             }
+
 
             public Object visit(IR.LabelDec c) {
                 X86.emitLabel(new X86.Label("L" + funcNumber + "_" + c.lab));
