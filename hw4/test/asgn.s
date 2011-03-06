@@ -11,15 +11,17 @@ __$MAIN:
 	subq $0,%rsp
     # L0
 L0_0:
-    # movI 24,x_3
-	movl $24,%eax
-    # movI 10,y_4
-	movl $10,%eax
-    # mulI x_3,3,$T0
+    # movI 8,x_3
+	movl $8,%eax
+    # movI 1,y_4
+    # mulI x_3,5,$T0
 	movl %eax,%r10d
-	imull $3,%r10d
+	imull $5,%r10d
 	movl %r10d,%eax
     # movI $T0,y_4
+    # movI 3,y_4
+	movl $3,%eax
+    # movI 4,x_3
     # movI y_4,$A{0}0
 	movl %eax,%esi
     # calls{0} <1,false> "write_int"

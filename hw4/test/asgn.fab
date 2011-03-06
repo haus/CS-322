@@ -1,6 +1,8 @@
 {
-	var x:= 24;
-	var y:= 10;
-	y := x * 3;
-	write(y)
+        var x:= 8;
+        var y:= 1;
+        y := x * 5;
+        y := 3;
+        x := 4;
+        write(y)
 }
