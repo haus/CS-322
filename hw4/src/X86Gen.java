@@ -327,13 +327,16 @@ class X86Gen {
             }
 
             public Object visit(IR.Jump c) {
-                // ...
+                //X86.Operand mdest = gen_target_operand(c.dest,c.condition,tempReg2);
+                //X86.Operand mdest = gen_target_operand(c.dest,c.condition,tempReg2);
                 return null;
             }
 
             public Object visit(IR.Cmp c) {
-                // remember: left and right are switched in gnu assembler syntax!
-                // ...
+                X86.Operand mleft = gen_source_operand(c.left,IR.INT,true,true,tempReg1);
+                X86.Operand mright = gen_source_operand(c.right,IR.INT,true,true,tempReg2);
+                X86.emit2("cmp" + X86.size_suffix[c.type],mleft,mright);
+                        
                 return null;
             }
 

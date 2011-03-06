@@ -3,7 +3,7 @@
 # $T0	%rax
 # $A{0}0	%rsi
 # $RET	%rax
-# y_4	%rax
+# z_5	%rax
 	.p2align 4,0x90
 .globl __$MAIN
 __$MAIN:
@@ -12,6 +12,7 @@ __$MAIN:
 L0_0:
     # movI 4,x_3
     # movI 1,y_4
+    # movB true,z_5
     # modI 19,7,$T0
 	movl $19,%r10d
 	movl $7,%r11d
@@ -25,11 +26,13 @@ L0_0:
 	popq %rax
 	movl %r10d,%eax
     # movI $T0,y_4
-    # movI y_4,$A{0}0
-	movl %eax,%esi
-    # calls{0} <1,false> "write_int"
+    # movB false,z_5
+	movb $0,%al
+    # movB z_5,$A{0}0
+	movb %al,%sil
+    # calls{0} <1,false> "write_bool"
 	pushq %rdi
-	call _write_int
+	call _write_bool
 	popq %rdi
     # calls{1} <0,false> "write_newline"
 	pushq %rdi
