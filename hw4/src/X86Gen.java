@@ -331,8 +331,6 @@ class X86Gen {
                     X86.emit0("jmp" +" L0_" + c.dest);
                 else
                     X86.emit0("j" + IR.condition_string[c.condition] + " L0_" + c.dest);
-
-                //X86.Operand mdest = gen_target_operand(c.dest,c.condition,tempReg2);
                 return null;
             }
 
@@ -388,10 +386,12 @@ class X86Gen {
                         X86.emitMov(c.type,mleft,reg_div1);
                         X86.emitMov(c.type,mright,reg_div2);
                         X86.emit1("pushq",X86.RAX);
+                        X86.emit1("pushq",X86.RDX); // Do we need this for divide?
                         X86.emitMov(c.type,reg_div1,X86.EAX);
                         X86.emit0("cltd");
                         X86.emit1("idiv" + X86.size_suffix[c.type],reg_div2);
                         X86.emitMov(c.type,X86.EAX,reg_div1);
+                        X86.emit1("popq",X86.RDX); // Do we need this for divide?
                         X86.emit1("popq",X86.RAX);
                         X86.emitMov(c.type,reg_div1,mdest);
                         break;
