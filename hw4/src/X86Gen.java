@@ -327,7 +327,11 @@ class X86Gen {
             }
 
             public Object visit(IR.Jump c) {
-                //X86.Operand mdest = gen_target_operand(c.dest,c.condition,tempReg2);
+                if(c.condition == 0)
+                    X86.emit0("jmp" +" L0_" + c.dest);
+                else
+                    X86.emit0("j" + IR.condition_string[c.condition] + " L0_" + c.dest);
+
                 //X86.Operand mdest = gen_target_operand(c.dest,c.condition,tempReg2);
                 return null;
             }
@@ -335,7 +339,7 @@ class X86Gen {
             public Object visit(IR.Cmp c) {
                 X86.Operand mleft = gen_source_operand(c.left,IR.INT,true,true,tempReg1);
                 X86.Operand mright = gen_source_operand(c.right,IR.INT,true,true,tempReg2);
-                X86.emit2("cmp" + X86.size_suffix[c.type],mleft,mright);
+                X86.emit2("cmp" + X86.size_suffix[c.type],mright,mleft);
                         
                 return null;
             }
