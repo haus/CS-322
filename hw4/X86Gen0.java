@@ -31,7 +31,9 @@ class X86Gen {
 
   // per-function globals
   static Map<IR.Operand,X86.Operand> env; // location mapping 
+  static Map<IR.Operand,Liveness.Interval> liveIntervals; // operand liveness data 
   static int localsSize; // in bytes
+  static int irPtr; // pointer into IR list
 
 	  
   // generate code for a function
@@ -42,7 +44,7 @@ class X86Gen {
     // ...
 
     // assign a location (register or frame) to every IR.Operand that has a live range
-    // fills in remainder of env and sets localsSize
+    // fills in remainder of env and sets liveIntervals and localsSize
     allocateRegisters(fdef);  
 	  
     // emit the function header
@@ -71,9 +73,8 @@ class X86Gen {
     }
 	  
     // emit code for the body
-    for (IR.Inst inst : fdef.code) 
-      gen(inst);
-	  
+    for (irPtr = 0; irPtr < fdef.code.length; irPtr ++)
+      gen(fdef.code[irPtr]);
 
     // pop the frame
     X86.emit2("addq",new X86.Imm(frameSize),X86.RSP);
@@ -194,7 +195,8 @@ class X86Gen {
   // generate a target operand of the specified size
   // may use provided temp within returned Mem operand (but won't return it directly)
   // operand must not be a literal
-  // returns null if target wasn't given a location (i.e., is dead)
+  // returns null if target wasn't given a location or if we are outside its live
+  // range; either way it is dead at this point
   static X86.Operand gen_target_operand (IR.Operand rand, final int size,final X86.Reg temp) {
     class OperandVisitor implements IR.OperandVisitor {
       public X86.Operand visit(IR.Mem rand) {
@@ -205,6 +207,9 @@ class X86Gen {
 
       public X86.Operand visit(IR.Temp rand) {
 	X86.Operand mrand = env.get(rand);
+	Liveness.Interval live = liveIntervals.get(rand);
+	if (live != null && (irPtr < live.start || irPtr > live.end))
+	  return null;
 	if (mrand instanceof X86.Reg)
 	  return X86.resize_reg(size,(X86.Reg)mrand);
 	else 
@@ -241,6 +246,9 @@ class X86Gen {
 	
       public X86.Operand visit(IR.Name rand) {
 	X86.Operand mrand = env.get(rand);
+	Liveness.Interval live = liveIntervals.get(rand);
+ 	if (live != null && (irPtr < live.start || irPtr > live.end))
+	  return null;
 	if (mrand instanceof X86.Reg)
 	  return X86.resize_reg(size,(X86.Reg) mrand);
 	else 
@@ -384,12 +392,12 @@ class X86Gen {
 
   // Allocate IR.Operands (Temp,RetReg,Arg,Name) to locations 
   // described by X86.Operands.
-  // Side-effects: env and localsSize.
+  // Side-effects: env, liveIntervals, and localsSize.
   static void allocateRegisters(IR.Func func) {
     localsSize = 0;
 
     // Calculate liveness information for Temp,RetReg,Arg,Name 
-    Map<IR.Operand,Liveness.Interval> liveIntervals = Liveness.calculateLiveIntervals(funcenv,func);
+    liveIntervals = Liveness.calculateLiveIntervals(funcenv,func);
     int liveCount = liveIntervals.size();
 
     // Pre-assignments 
