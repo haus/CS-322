@@ -1,0 +1,8 @@
+{
+        var x:= 4;
+        var y:= 1;
+	   var z:= true;
+        y := 19 mod 7;
+	z := false;
+        write(z)
+}
