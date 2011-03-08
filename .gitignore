@@ -1,5 +1,4 @@
 *.pdf
-*.xml
 .idea
 .idea/*
 out
