@@ -1,0 +1,12 @@
+{
+var x := 5;
+var y := -2;
+if (x > y) then {
+	write(x)
+};
+
+
+if (y > x) then {
+	write(y)
+}
+}
