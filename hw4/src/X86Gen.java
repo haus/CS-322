@@ -281,6 +281,7 @@ class X86Gen {
                     X86.emit1("popq",closureReg);
                 } else {
                     // ...
+
                 }
                 return null;
             }
@@ -335,10 +336,17 @@ class X86Gen {
             }
 
             public Object visit(IR.Cmp c) {
-                X86.Operand mleft = gen_source_operand(c.left,IR.INT,true,true,tempReg1);
-                X86.Operand mright = gen_source_operand(c.right,IR.INT,true,true,tempReg2);
+                X86.Operand mright = gen_source_operand(c.right,c.type,true,true,tempReg1);
+                X86.Operand mleft = null;
+
+                if (c.type == IR.PTR && !(mright instanceof X86.Imm)) {
+                    mleft = gen_source_operand(c.left,c.type,true,true,tempReg2);
+                } else {
+                    mleft = gen_source_operand(c.left,c.type,true,false,tempReg2);
+                }
+
                 X86.emit2("cmp" + X86.size_suffix[c.type],mright,mleft);
-                        
+
                 return null;
             }
 
@@ -489,13 +497,34 @@ class X86Gen {
         // we simply refuse to use a caller-save register for any operand whose
         // live interval includes a call; that way, we never have to worry about
         // saving caller-save registers at all.
+
+        ArrayList<startInterval> sortedStartInterval = new ArrayList<startInterval>();
+        ArrayList<endInterval> active = new ArrayList<endInterval>();
+
         for (Map.Entry<IR.Operand,Liveness.Interval> me : liveIntervals.entrySet())  {
-            IR.Operand rand = me.getKey();
+            sortedStartInterval.add(new startInterval(me.getKey(), me.getValue()));
+        }
+
+        Collections.sort(sortedStartInterval);
+
+        for (startInterval startInts : sortedStartInterval) {
+            //ArrayList<endInterval> tempEnd = new ArrayList<endInterval>();
+
+            for (int i = 0; i < active.size(); i++) {
+                if (active.get(i).end < startInts.start) {
+                    regAvailable[active.get(i).assignedReg] = true;
+                    active.remove(active.get(i));
+                } else
+                    break;
+            }
+
+            // Give it a register...
+            IR.Operand rand = startInts.op;
             X86.Operand mrand = env.get(rand);
             if (mrand == null) {
                 // not pre-allocated; try to find a register
                 X86.Reg treg = null;
-                Liveness.Interval n = me.getValue();
+                Liveness.Interval n = startInts;
                 if (intervalContainsCall(func,n)) {
                     // insist on a callee-save reg
                     for (X86.Reg reg : X86.calleeSaveRegs)
@@ -509,8 +538,8 @@ class X86Gen {
                         if (regAvailable[reg.r]) {
                             treg = reg;
                             break;
-                        };
-                    };
+                        }
+                    }
                     if (treg == null) {
                         // otherwise, try a callee-save
                         for (X86.Reg reg : X86.calleeSaveRegs)
@@ -524,6 +553,10 @@ class X86Gen {
                     // We found a register
                     regAvailable[treg.r] = false;
                     mrand = treg;
+
+                    // Add it to the endInterval map...
+                    active.add(new endInterval(startInts.op, startInts, treg.r));
+                    Collections.sort(active);
                 } else {
                     // Couldn't find a register: use a stack slot.
                     // Since we don't readily know the operand type,
@@ -533,6 +566,7 @@ class X86Gen {
                 }
                 env.put(rand,mrand);
             }
+
         }
         // ***************
         // For debug purposes
@@ -550,4 +584,55 @@ class X86Gen {
         return false;
     }
 
+}
+
+class startInterval extends Liveness.Interval implements Comparable<Liveness.Interval> {
+    public IR.Operand op;
+    startInterval(IR.Operand op, Liveness.Interval interval) {
+        super(interval.start, interval.end);
+        this.op = op;
+    }
+
+    boolean equals(Liveness.Interval interval) {
+        return (interval.start == this.start);
+    }
+
+    public int compareTo(Liveness.Interval interval) {
+        if (this.equals(interval))
+            return 0;
+        else if (interval.start < this.start)
+            return 1;
+        else
+            return -1;
+    }
+}
+
+class endInterval extends Liveness.Interval implements Comparable<Liveness.Interval> {
+    public IR.Operand op;
+    public Integer assignedReg;
+
+    endInterval(IR.Operand op, Liveness.Interval interval) {
+        super(interval.start, interval.end);
+        this.assignedReg = null;
+        this.op = op;
+    }
+
+    endInterval(IR.Operand op, Liveness.Interval interval, Integer reg) {
+        super(interval.start, interval.end);
+        this.assignedReg = reg;
+        this.op = op;
+    }
+
+    boolean equals(Liveness.Interval interval) {
+        return (interval.end == this.end);
+    }
+
+    public int compareTo(Liveness.Interval interval) {
+        if (this.equals(interval))
+            return 0;
+        else if (interval.end < this.end)
+            return 1;
+        else
+            return -1;
+    }
 }

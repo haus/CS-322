@@ -1,7 +1,7 @@
 {
 	write(5 + 4);
 	write(5 - 4);
-	write(1 div 0);
+	write(1 div 1);
 	write(5 div 3);
 	write(5 * 4);
 	write(10 mod 2);
