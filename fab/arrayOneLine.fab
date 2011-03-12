@@ -1,0 +1,3 @@
+{
+  var up := @boolean {15 of true}
+}

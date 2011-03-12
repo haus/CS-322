@@ -443,7 +443,7 @@ class X86Gen {
                         X86.Reg tempReg2s = X86.resize_reg(c.type, tempReg2);
                         X86.emit2("imul" + X86.size_suffix[c.type],mright,tempReg1s);
                         mdest = gen_target_operand(c.dest,c.type,tempReg2);
-                        X86.emitMov(c.type, tempReg2s, mdest);
+                        X86.emitMov(c.type, tempReg1s, mdest);
 
                         break;
                     case IR.DIV:

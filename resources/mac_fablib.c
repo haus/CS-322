@@ -11,7 +11,7 @@ int main() {
 void * alloc(long ignore, int i) {
   void * r = (void *) malloc(i);
   if (!r) {
-    fprintf(stderr,"fab library failure: out of memory\n");
+    fprintf(stderr,"fab library failure: out of memory. could not allocate %u elements\n", i);
     exit(1);
   };
   return r;
