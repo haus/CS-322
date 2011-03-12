@@ -437,8 +437,11 @@ class X86Gen {
 
                         break;
                     case IR.SUB:
-                        X86.emitMov(c.type,mleft,mdest);
-                        X86.emit2("sub" + X86.size_suffix[c.type],mright,mdest);
+                        tempReg1s = X86.resize_reg(c.type, tempReg1);
+                        X86.emitMov(c.type,mleft,tempReg1s);
+
+                        X86.emit2("sub" + X86.size_suffix[c.type],mright,tempReg1s);
+                        X86.emitMov(c.type,tempReg1s,mdest);
                         break;
                     case IR.MUL:
                         tempReg1s = X86.resize_reg(c.type, tempReg1);
