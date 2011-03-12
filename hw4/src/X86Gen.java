@@ -58,8 +58,7 @@ class X86Gen {
 
         // assign a location (register or frame) to every IR.Operand that has a live range
         // fills in remainder of env and sets localsSize
-        boolean[] regAvailable = new boolean[X86.allRegs.length];
-        regAvailable = allocateRegisters(fdef);
+        allocateRegisters(fdef);
 
         // emit the function header
         X86.emit0(".p2align 4,0x90");
@@ -68,7 +67,7 @@ class X86Gen {
 
         // save any callee-save registers on the stack now
         for (int i = 0; i < X86.calleeSaveRegs.length; i++) {
-            //if (!regAvailable[X86.calleeSaveRegs[i].r]) {
+            //if (env.containsValue(new X86.Reg(X86.calleeSaveRegs[i].r))) {
                 X86.emit1("pushq", X86.calleeSaveRegs[i]);
             //}
         }
@@ -101,7 +100,7 @@ class X86Gen {
 
         // restore any callee save registers
         for (int i = X86.calleeSaveRegs.length - 1; i >= 0; i--) {
-            //if (!regAvailable[X86.calleeSaveRegs[i].r]) {
+            //if (env.containsValue(new X86.Reg(X86.calleeSaveRegs[i].r))) {
                 X86.emit1("popq", X86.calleeSaveRegs[i]);
             //}
         }
@@ -502,7 +501,7 @@ class X86Gen {
     // Allocate IR.Operands (Temp,RetReg,Arg,Name) to locations
     // described by X86.Operands.
     // Side-effects: env and localsSize.
-    static boolean[] allocateRegisters(IR.Func func) {
+    static void allocateRegisters(IR.Func func) {
         localsSize = 0;
 
         // Calculate liveness information for Temp,RetReg,Arg,Name
@@ -632,8 +631,6 @@ class X86Gen {
         System.out.println("# Allocation map");
         for (Map.Entry<IR.Operand,X86.Operand> me : env.entrySet())
             System.out.println("# " + me.getKey() + "\t" + me.getValue());
-
-        return regAvailable;
     }
 
     // Return true if specified interval includes an IR instruction
