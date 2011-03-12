@@ -66,16 +66,19 @@ class X86Gen {
         X86.emitLabel(new X86.Label("__" + fdef.name));
 
         // save any callee-save registers on the stack now
+        int calleeCount = 0;
         for (int i = 0; i < X86.calleeSaveRegs.length; i++) {
-            //if (env.containsValue(X86.calleeSaveRegs[i])) {
+            if (env.containsValue(X86.calleeSaveRegs[i])) {
                 X86.emit1("pushq", X86.calleeSaveRegs[i]);
-            //}
+                calleeCount++;
+            }
         }
 
+        calleeCount %= 2;
 
         // make space for the local frame
         // be sure to keep stack growth in multiples of 16
-        int frameSize = X86.roundup(localsSize,16);   // may need adjustment!
+        int frameSize = X86.roundup(localsSize + calleeCount,8);   // may need adjustment!
         X86.emit2("subq",new X86.Imm(frameSize),X86.RSP);
 
         // move the incoming actual arguments to their assigned locations.
@@ -100,9 +103,9 @@ class X86Gen {
 
         // restore any callee save registers
         for (int i = X86.calleeSaveRegs.length - 1; i >= 0; i--) {
-            //if (env.containsValue(X86.calleeSaveRegs[i])) {
+            if (env.containsValue(X86.calleeSaveRegs[i])) {
                 X86.emit1("popq", X86.calleeSaveRegs[i]);
-            //}
+            }
         }
 
         // and we're done
