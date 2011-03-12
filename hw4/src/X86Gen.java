@@ -45,7 +45,7 @@ class X86Gen {
         // we record their addresses in the environment now
         // ...
 
-        for (int i = 0; i < fdef.formals.length; i++) {
+        for (int i = 0; i < fdef.freevars.length; i++) {
             X86.Operand t = new X86.AddrName(fdef.freevars[i].id);
             IR.Operand x = new IR.Name(fdef.freevars[i].id);
 
@@ -297,8 +297,12 @@ class X86Gen {
                     X86.emit0("call _" + ((IR.StringLit) c.target).s);
                     X86.emit1("popq",closureReg);
                 } else {
-                    // ...
-
+                    assert(env.get(c.target) instanceof X86.Reg);
+                    X86.emit1("pushq",closureReg);
+                    X86.emitMov(2, new X86.Mem(((X86.Reg) env.get(c.target)), 8), closureReg);
+                    X86.emit0("call " + "*  " + "0(" + ((X86.Reg) env.get(c.target)).toString() + ")");
+                    //X86.emitMov(2, )
+                    X86.emit1("popq", closureReg);
                 }
                 return null;
             }
@@ -313,7 +317,7 @@ class X86Gen {
                     X86.Operand t = gen_target_operand(new IR.Name (f),IR.PTR,tempReg1);
                     assert (t != null);
                     X86.emitMov(X86.Q,X86.RAX,t);
-                };
+                }
                 for (String f : c.funcs) {
                     IR.Func fdef = funcenv.get(f);
                     int varOffset[] = new int[fdef.freevars.length];
@@ -345,10 +349,11 @@ class X86Gen {
             }
 
             public Object visit(IR.Jump c) {
-                if(c.condition == 0)
-                    X86.emit0("jmp" +" L0_" + c.dest);
-                else
-                    X86.emit0("j" + IR.condition_string[c.condition] + " L0_" + c.dest);
+                if(c.condition == 0) {
+
+                    X86.emit0("jmp" + " L" + funcNumber + "_" + c.dest);
+                } else
+                    X86.emit0("j" + IR.condition_string[c.condition] + " L" + funcNumber + "_" + c.dest);
                 return null;
             }
 
@@ -389,8 +394,7 @@ class X86Gen {
                         }
                         X86.emit2("add" + X86.size_suffix[c.type],mright,mdest);
 
-                        /*  if(!(mleft instanceof X86.Imm) || !(mright instanceof X86.Imm))
-                      {
+                        /*  if(!(mleft instanceof X86.Imm) || !(mright instanceof X86.Imm)) {
                           System.out.println("YO");
                           X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
                           X86.emitMov(c.type,tempReg1s,mdest);
