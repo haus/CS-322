@@ -1,0 +1,13 @@
+{
+	var x := 5;
+	var y := 10;
+	var a := -2;
+	var b := -4;
+	var c := -6;
+	var d := -8;
+	var e := -10;
+	var f := -12;
+	
+	write((a + b * c div d * e + f - x) - y);
+	write(a * (a + b) * (a + c) * (a + d) div c - a)
+}

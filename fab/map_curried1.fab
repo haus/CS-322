@@ -34,19 +34,20 @@ record list {value:integer, next:list};
 
   var inc : integer := 0;
   write ("enter increment");
-  read(inc);
+  inc := 342;
   loop {
     var l : list := nil;
     write ("enter ", N, " list elements ");
     var i := 0;
     for i := 0 to N-1 do {
-      var x := 0;
-      read (x);
+      var x := i + N;
+      
       l := cons(x,l)
     };
     write ("list is: ");
     writelist(l);
     write ("result is: ");
-    writelist(map(plus(inc),l))
+    writelist(map(plus(inc),l));
+	exit
   }      
 }

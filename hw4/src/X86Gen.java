@@ -47,8 +47,6 @@ class X86Gen {
         // ...
         int offset = 0;
         for (int i = 0; i < fdef.freevars.length; i++) {
-
-
             X86.Operand t = new X86.Mem(closureReg, offset);
             IR.Operand x = new IR.Name(fdef.freevars[i].id);
 
@@ -383,18 +381,7 @@ class X86Gen {
             public Object visit(IR.Arith c) {
                 X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
                 X86.Operand mleft = gen_source_operand(c.left,c.type,true,true,tempReg1);
-                //X86.Operand mright = null;
                 X86.Operand mright = gen_source_operand(c.right,c.type,true,true,tempReg2);
-
-                /*
-                if (c.type == IR.PTR && !(mleft instanceof X86.Imm) && !(mleft instanceof  X86.Mem)) {
-                    mright = gen_source_operand(c.right,c.type,true,true,tempReg2);
-                } else if (c.type == IR.PTR && !(mleft instanceof X86.Imm)) {
-                    mright = gen_source_operand(c.right,c.type,true,false,tempReg2);
-                } else {
-                    mright = gen_source_operand(c.right,c.type,false,false,tempReg2);
-                }
-                */
 
                 switch (c.op) {
                     case IR.ADD:
@@ -404,23 +391,6 @@ class X86Gen {
 
                         // Because add's left operand can have pointers
                         // So 2nd parameter has to be c.type and not IR.INT
-                        /*
-                        mleft = gen_source_operand(c.left,c.type,true,true,tempReg1);
-                        X86.emitMov(c.type,mleft,mdest);
-
-                        if (c.type == IR.PTR && !(mright instanceof X86.Imm)) {
-                            X86.Reg tempReg2s = X86.resize_reg(c.type, tempReg2);
-                            X86.emit2("movslq",mright,tempReg2s);
-                            mright = tempReg2;
-                        }
-                        X86.emit2("add" + X86.size_suffix[c.type],mright,mdest);
-
-                        /*  if(!(mleft instanceof X86.Imm) || !(mright instanceof X86.Imm)) {
-                          System.out.println("YO");
-                          X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
-                          X86.emitMov(c.type,tempReg1s,mdest);
-                      }  */
-
                         mleft = gen_source_operand(c.left, c.type, true, true, tempReg1);
                         X86.Reg tempReg1s = X86.resize_reg(c.type, tempReg1);
                         X86.emitMov(c.type, mleft, tempReg1s);
@@ -446,8 +416,8 @@ class X86Gen {
                     case IR.MUL:
                         tempReg1s = X86.resize_reg(c.type, tempReg1);
                         X86.emitMov(c.type,mleft,tempReg1s);
+
                         X86.emit2("imul" + X86.size_suffix[c.type],mright,tempReg1s);
-                        mdest = gen_target_operand(c.dest,c.type,tempReg2);
                         X86.emitMov(c.type, tempReg1s, mdest);
 
                         break;
