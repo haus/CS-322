@@ -76,7 +76,8 @@ class X86Gen {
 
         // make space for the local frame
         // be sure to keep stack growth in multiples of 16
-        int frameSize = X86.roundup(localsSize + calleeCount,8);   // may need adjustment!
+        int frameSize = X86.roundup(localsSize,16);   // may need adjustment!
+        frameSize += (8 * calleeCount);
         X86.emit2("subq",new X86.Imm(frameSize),X86.RSP);
 
         // move the incoming actual arguments to their assigned locations.
