@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 #make hw4
+javac -classpath .:hw4/src/:resources/frontend.jar:resources/ir.jar hw4/src/X86GenDriver.java
+
 
 for F in `ls fabTest/*.fab`;
 do 
