@@ -67,7 +67,7 @@ class X86Gen {
 
         // save any callee-save registers on the stack now
         for (int i = 0; i < X86.calleeSaveRegs.length; i++) {
-            //if (env.containsValue(new X86.Reg(X86.calleeSaveRegs[i].r))) {
+            //if (env.containsValue(X86.calleeSaveRegs[i])) {
                 X86.emit1("pushq", X86.calleeSaveRegs[i]);
             //}
         }
@@ -100,7 +100,7 @@ class X86Gen {
 
         // restore any callee save registers
         for (int i = X86.calleeSaveRegs.length - 1; i >= 0; i--) {
-            //if (env.containsValue(new X86.Reg(X86.calleeSaveRegs[i].r))) {
+            //if (env.containsValue(X86.calleeSaveRegs[i])) {
                 X86.emit1("popq", X86.calleeSaveRegs[i]);
             //}
         }
@@ -438,9 +438,8 @@ class X86Gen {
                         X86.emit2("sub" + X86.size_suffix[c.type],mright,mdest);
                         break;
                     case IR.MUL:
-                        //X86.emitMov(c.type,mleft,mdest);
                         tempReg1s = X86.resize_reg(c.type, tempReg1);
-                        X86.Reg tempReg2s = X86.resize_reg(c.type, tempReg2);
+                        X86.emitMov(c.type,mleft,tempReg1s);
                         X86.emit2("imul" + X86.size_suffix[c.type],mright,tempReg1s);
                         mdest = gen_target_operand(c.dest,c.type,tempReg2);
                         X86.emitMov(c.type, tempReg1s, mdest);
