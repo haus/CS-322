@@ -2,6 +2,11 @@ import javax.management.relation.InvalidRelationTypeException;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Jonah Brasseur & Matthaus Litteken
+ * CS 322 - HW 4
+ */
+
 class X86Gen {
 
     static final X86.Reg closureReg = X86.RDI;
@@ -353,17 +358,16 @@ class X86Gen {
             }
 
             public Object visit(IR.Jump c) {
-                if(c.condition == 0) {
-
+                if(c.condition == 0)
                     X86.emit0("jmp" + " L" + funcNumber + "_" + c.dest);
-                } else
+                else
                     X86.emit0("j" + IR.condition_string[c.condition] + " L" + funcNumber + "_" + c.dest);
                 return null;
             }
 
             public Object visit(IR.Cmp c) {
                 X86.Operand mright = gen_source_operand(c.right,c.type,true,true,tempReg1);
-                X86.Operand mleft = null;
+                X86.Operand mleft;
 
                 if (c.type == IR.PTR && !(mright instanceof X86.Imm) && !(mright instanceof  X86.Mem)) {
                     mleft = gen_source_operand(c.left,c.type,true,true,tempReg2);
@@ -383,6 +387,7 @@ class X86Gen {
                 X86.Operand mdest = gen_target_operand(c.dest,c.type,tempReg2);
                 X86.Operand mleft = gen_source_operand(c.left,c.type,true,true,tempReg1);
                 X86.Operand mright = gen_source_operand(c.right,c.type,true,true,tempReg2);
+                X86.Reg tempReg1s = X86.resize_reg(c.type, tempReg1);
 
                 switch (c.op) {
                     case IR.ADD:
@@ -392,19 +397,28 @@ class X86Gen {
 
                         // Because add's left operand can have pointers
                         // So 2nd parameter has to be c.type and not IR.INT
-                        mleft = gen_source_operand(c.left, c.type, true, true, tempReg1);
-                        X86.Reg tempReg1s = X86.resize_reg(c.type, tempReg1);
-                        X86.emitMov(c.type, mleft, tempReg1s);
-                        mright = gen_source_operand(c.right, IR.INT, true, true, tempReg2);
 
-                        if (c.type == IR.PTR && !(mright instanceof X86.Imm)) {
-                            X86.emit2("movslq", mright, tempReg2);
-                            mright = tempReg2;
+                        // Zero for addition...
+                        if (mleft instanceof  X86.Imm && ((X86.Imm) mleft).i == 0) {
+                            X86.emitMov(c.type, mright, mdest);
+                        } else if (mright instanceof  X86.Imm && ((X86.Imm) mright).i == 0) {
+                            X86.emitMov(c.type, mleft, mdest);
+                        } else {
+
+                            mleft = gen_source_operand(c.left, c.type, true, true, tempReg1);
+
+                            X86.emitMov(c.type, mleft, tempReg1s);
+                            mright = gen_source_operand(c.right, IR.INT, true, true, tempReg2);
+
+                            if (c.type == IR.PTR && !(mright instanceof X86.Imm)) {
+                                X86.emit2("movslq", mright, tempReg2);
+                                mright = tempReg2;
+                            }
+
+                            X86.emit2("add" + X86.size_suffix[c.type], mright, tempReg1s);
+                            mdest = gen_target_operand(c.dest, c.type, tempReg2);
+                            X86.emitMov(c.type, tempReg1s, mdest);
                         }
-
-                        X86.emit2("add" + X86.size_suffix[c.type], mright, tempReg1s);
-                        mdest = gen_target_operand(c.dest, c.type, tempReg2);
-                        X86.emitMov(c.type, tempReg1s, mdest);
 
                         break;
                     case IR.SUB:
@@ -415,11 +429,69 @@ class X86Gen {
                         X86.emitMov(c.type,tempReg1s,mdest);
                         break;
                     case IR.MUL:
-                        tempReg1s = X86.resize_reg(c.type, tempReg1);
-                        X86.emitMov(c.type,mleft,tempReg1s);
+                        // Zero is a zero.
+                        if (
+                                (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 0) ||
+                                        (mright instanceof X86.Imm && ((X86.Imm) mright).i == 0)
+                                ) {
 
-                        X86.emit2("imul" + X86.size_suffix[c.type],mright,tempReg1s);
-                        X86.emitMov(c.type, tempReg1s, mdest);
+                            X86.emit2("xor" + X86.size_suffix[c.type], mdest, mdest);
+
+                        }
+                        // 1 is an identify. So just do the move...
+                        else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 1) {
+                            X86.emitMov(c.type, mright, mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 1) {
+                            X86.emitMov(c.type, mleft, mdest);
+                        }
+                        // Use shift instead... for 2, 4, 8, 16, 32...
+                        else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 2) {
+                            mright = gen_source_operand(c.right,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mright, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(1), mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 2) {
+                            mleft = gen_source_operand(c.left,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mleft, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(1), mdest);
+                        } else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 4) {
+                            mright = gen_source_operand(c.right,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mright, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(2), mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 4) {
+                            mleft = gen_source_operand(c.left,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mleft, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(2), mdest);
+                        } else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 8) {
+                            mright = gen_source_operand(c.right,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mright, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(3), mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 8) {
+                            mleft = gen_source_operand(c.left,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mleft, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(3), mdest);
+                        } else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 16) {
+                            mright = gen_source_operand(c.right,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mright, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(4), mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 16) {
+                            mleft = gen_source_operand(c.left,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mleft, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(4), mdest);
+                        } else if (mleft instanceof X86.Imm && ((X86.Imm) mleft).i == 32) {
+                            mright = gen_source_operand(c.right,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mright, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(5), mdest);
+                        } else if (mright instanceof X86.Imm && ((X86.Imm) mright).i == 32) {
+                            mleft = gen_source_operand(c.left,c.type,false,true,tempReg2);
+                            X86.emitMov(c.type, mleft, mdest);
+                            X86.emit2("sal" + X86.size_suffix[c.type], new X86.Imm(5), mdest);
+                        } else {
+                            tempReg1s = X86.resize_reg(c.type, tempReg1);
+                            X86.emitMov(c.type,mleft,tempReg1s);
+
+                            X86.emit2("imul" + X86.size_suffix[c.type],mright,tempReg1s);
+                            X86.emitMov(c.type, tempReg1s, mdest);
+                        }
 
                         break;
                     case IR.DIV:
